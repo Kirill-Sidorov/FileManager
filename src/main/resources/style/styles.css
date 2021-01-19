@@ -1,0 +1,11 @@
+.workplace {
+    -fx-font-size: 11px;
+}
+
+.button-right-copy {
+    -fx-graphic: url(/img/arrow-right.png);
+}
+
+.button-left-copy {
+    -fx-graphic: url(/img/arrow-left.png);
+}
