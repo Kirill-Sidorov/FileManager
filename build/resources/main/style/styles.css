@@ -2,6 +2,14 @@
     -fx-font-size: 11px;
 }
 
+.button-refresh {
+    -fx-graphic: url(/img/refresh.png);
+}
+
+.button-previous {
+    -fx-graphic: url(/img/arrow-previous.png);
+}
+
 .button-right-copy {
     -fx-graphic: url(/img/arrow-right.png);
 }

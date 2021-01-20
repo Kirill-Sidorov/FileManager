@@ -8,6 +8,11 @@
 
 <VBox xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.sidorov.filemanager.controller.FileTableController">
-    <TextField fx:id="pathTextField" editable="false"/>
-    <TableView fx:id="fileTable" VBox.vgrow="ALWAYS"/>
+    <HBox>
+        <Button styleClass="button-refresh" onAction="#refreshFileManagerButton"/>
+        <ComboBox fx:id="diskComboBox" onAction="#selectDiskComboBox"/>
+        <Button styleClass="button-previous" onAction="#goPreviousFilesButton"/>
+        <TextField fx:id="pathTextField" editable="false" HBox.hgrow="ALWAYS"/>
+    </HBox>
+    <TableView fx:id="fileTable" VBox.vgrow="ALWAYS" onMouseClicked="#clickOnItemTableView"/>
 </VBox>
