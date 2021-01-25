@@ -11,14 +11,15 @@ import java.time.ZoneOffset;
 
 public class FileInformation {
 
+    private Path path;
     private String name;
     private long size;
     private LocalDateTime date;
-    private String fileTypeString;
-    private FileType type;
+    private String type;
 
     public FileInformation(Path path) {
         try {
+            this.path = path;
             this.name = path.getFileName().toString();
             this.size = Files.size(path);
             this.date = LocalDateTime.ofInstant(Files.getLastModifiedTime(path).toInstant(), ZoneOffset.systemDefault());
@@ -27,13 +28,14 @@ public class FileInformation {
         }
 
         if (Files.isDirectory(path)) {
-            this.type = FileType.DIRECTORY;
-            this.fileTypeString = BundleHolder.getBundle().getString("message.name.directory");
+            this.type = BundleHolder.getBundle().getString("message.name.directory");
+            this.size = -1L;
         } else {
-            this.type = FileType.FILE;
-            this.fileTypeString = FilenameUtils.getExtension(path.toString());
+            this.type = FilenameUtils.getExtension(path.toString());
         }
     }
+
+    public Path getPath() { return path; }
 
     public String getName() {
         return name;
@@ -47,10 +49,7 @@ public class FileInformation {
         return date;
     }
 
-    public String getFileTypeString() { return fileTypeString; }
-
-    public FileType getType() {
+    public String getType() {
         return type;
     }
-
 }

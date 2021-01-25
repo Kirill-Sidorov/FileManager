@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
 <VBox xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.sidorov.filemanager.controller.FileTableController">
     <HBox>
-        <Button styleClass="button-refresh" onAction="#refreshFileManagerButton"/>
-        <ComboBox fx:id="diskComboBox" onAction="#selectDiskComboBox"/>
+        <ComboBox fx:id="diskComboBox" onAction="#selectDiskComboBox" onMouseClicked="#clickDiskComboBox"/>
+        <Label styleClass="label-file-system-info" text="%ui.label.total_space"/>
+        <Label styleClass="label-file-system-info" fx:id="fileSystemTotalSpaceLabel"/>
+        <Label styleClass="label-file-system-info" text="%ui.label.unallocated_space"/>
+        <Label styleClass="label-file-system-info" fx:id="fileSystemUnallocatedSpaceLabel"/>
+    </HBox>
+    <HBox>
         <Button styleClass="button-previous" onAction="#goPreviousFilesButton"/>
         <TextField fx:id="pathTextField" editable="false" HBox.hgrow="ALWAYS"/>
+        <Button styleClass="button-refresh" onAction="#clickRefreshButton"/>
     </HBox>
     <TableView fx:id="fileTable" VBox.vgrow="ALWAYS" onMouseClicked="#clickOnItemTableView"/>
 </VBox>

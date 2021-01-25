@@ -1,5 +1,5 @@
-.workplace {
-    -fx-font-size: 11px;
+.label-file-system-info {
+    -fx-padding: 0 1em 0 0;
 }
 
 .button-refresh {
@@ -8,12 +8,4 @@
 
 .button-previous {
     -fx-graphic: url(/img/arrow-previous.png);
-}
-
-.button-right-copy {
-    -fx-graphic: url(/img/arrow-right.png);
-}
-
-.button-left-copy {
-    -fx-graphic: url(/img/arrow-left.png);
 }

@@ -80,7 +80,7 @@ case "`uname`" in
     ;;
 esac
 
-CLASSPATH=$APP_HOME/lib/FileManager-1.0-SNAPSHOT.jar:$APP_HOME/lib/javafx-fxml-15.0.1-win.jar:$APP_HOME/lib/javafx-controls-15.0.1-win.jar:$APP_HOME/lib/javafx-controls-15.0.1.jar:$APP_HOME/lib/javafx-graphics-15.0.1-win.jar:$APP_HOME/lib/javafx-graphics-15.0.1.jar:$APP_HOME/lib/javafx-base-15.0.1-win.jar:$APP_HOME/lib/javafx-base-15.0.1.jar
+CLASSPATH=$APP_HOME/lib/FileManager-1.0-SNAPSHOT.jar:$APP_HOME/lib/commons-io-2.6.jar:$APP_HOME/lib/javafx-fxml-15.0.1-win.jar:$APP_HOME/lib/javafx-controls-15.0.1-win.jar:$APP_HOME/lib/javafx-controls-15.0.1.jar:$APP_HOME/lib/javafx-graphics-15.0.1-win.jar:$APP_HOME/lib/javafx-graphics-15.0.1.jar:$APP_HOME/lib/javafx-base-15.0.1-win.jar:$APP_HOME/lib/javafx-base-15.0.1.jar
 
 # Determine the Java command to use to start the JVM.
 if [ -n "$JAVA_HOME" ] ; then

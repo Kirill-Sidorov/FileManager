@@ -82,7 +82,7 @@ set CMD_LINE_ARGS=%*
 :execute
 @rem Setup the command line
 
-set CLASSPATH=%APP_HOME%\lib\FileManager-1.0-SNAPSHOT.jar;%APP_HOME%\lib\javafx-fxml-15.0.1-win.jar;%APP_HOME%\lib\javafx-controls-15.0.1-win.jar;%APP_HOME%\lib\javafx-controls-15.0.1.jar;%APP_HOME%\lib\javafx-graphics-15.0.1-win.jar;%APP_HOME%\lib\javafx-graphics-15.0.1.jar;%APP_HOME%\lib\javafx-base-15.0.1-win.jar;%APP_HOME%\lib\javafx-base-15.0.1.jar
+set CLASSPATH=%APP_HOME%\lib\FileManager-1.0-SNAPSHOT.jar;%APP_HOME%\lib\commons-io-2.6.jar;%APP_HOME%\lib\javafx-fxml-15.0.1-win.jar;%APP_HOME%\lib\javafx-controls-15.0.1-win.jar;%APP_HOME%\lib\javafx-controls-15.0.1.jar;%APP_HOME%\lib\javafx-graphics-15.0.1-win.jar;%APP_HOME%\lib\javafx-graphics-15.0.1.jar;%APP_HOME%\lib\javafx-base-15.0.1-win.jar;%APP_HOME%\lib\javafx-base-15.0.1.jar
 
 @rem Execute FileManager
 "%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %FILE_MANAGER_OPTS%  -classpath "%CLASSPATH%" com.sidorov.filemanager.ApplicationRunner %CMD_LINE_ARGS%
