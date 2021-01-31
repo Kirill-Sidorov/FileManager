@@ -30,6 +30,11 @@ public class FileManagerController implements Initializable {
     public void copyFileButton(ActionEvent actionEvent) {
         List<File> leftFiles = leftFileTableController.getSelectedFiles();
         List<File> rightFiles = rightFileTableController.getSelectedFiles();
+        System.out.println(leftFiles.stream().count());
+        System.out.println(rightFiles.stream().count());
+        /*
+        List<File> leftFiles = leftFileTableController.getSelectedFiles();
+        List<File> rightFiles = rightFileTableController.getSelectedFiles();
         if (!leftFiles.isEmpty()) {
             copyFiles(leftFiles, rightFileTableController.getCurrentPath());
         } else if (!rightFiles.isEmpty()) {
@@ -37,15 +42,18 @@ public class FileManagerController implements Initializable {
         } else {
             AlertUtility.showWarningAlert(BundleHolder.getBundle().getString("message.alert.no_files_selected"), ButtonType.OK);
         }
+        */
     }
 
     private void copyFiles(List<File> files, Path dstPath) {
+        /*
         try {
             System.out.println(files.stream().count());
             FileUtils.copyToDirectory(files, dstPath.toFile());
         } catch (IOException e) {
 
         }
+        */
     }
 
     public void moveFileButton(ActionEvent actionEvent) {
@@ -58,5 +66,9 @@ public class FileManagerController implements Initializable {
     }
 
     public void deleteButton(ActionEvent actionEvent) {
+    }
+
+    public void clickAddGoogleDrive(ActionEvent actionEvent) {
+
     }
 }

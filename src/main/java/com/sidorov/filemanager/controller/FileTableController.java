@@ -1,10 +1,14 @@
 package com.sidorov.filemanager.controller;
 
-import com.sidorov.filemanager.model.FileInformation;
+import com.sidorov.filemanager.model.FileEntity;
 import com.sidorov.filemanager.utility.BundleHolder;
 import com.sidorov.filemanager.utility.FileManager;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -25,7 +29,6 @@ public class FileTableController implements Initializable {
 
     @FXML
     private Label fileSystemTotalSpaceLabel;
-
     @FXML
     private Label fileSystemUnallocatedSpaceLabel;
 
@@ -36,7 +39,10 @@ public class FileTableController implements Initializable {
     private TextField pathTextField;
 
     @FXML
-    private TableView<FileInformation> fileTable;
+    private ProgressBar progressBarLoadingTable;
+
+    @FXML
+    private TableView<FileEntity> fileView;
 
     private Path currentPath;
     private String currentRootDirectoryString;
@@ -44,12 +50,12 @@ public class FileTableController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         initializeTable(resources);
+        currentPath = Paths.get("/");
+        updateTable();
         refreshComboBox();
         diskComboBox.getSelectionModel().select(0);
         currentRootDirectoryString = diskComboBox.getSelectionModel().getSelectedItem();
-        currentPath = Paths.get("/");
         updateFileSystemInfoLabels(currentPath);
-        updateTable();
     }
 
     public void clickRefreshButton(ActionEvent actionEvent) {
@@ -77,11 +83,11 @@ public class FileTableController implements Initializable {
 
     public void clickOnItemTableView(MouseEvent mouseEvent) {
         if (mouseEvent.getClickCount() == 2) {
-            FileInformation fileInformation = fileTable.getSelectionModel().getSelectedItem();
-            if (fileInformation == null) {
+            FileEntity file = fileView.getSelectionModel().getSelectedItem();
+            if (file == null) {
                 return;
             }
-            Path path = fileInformation.getPath();
+            Path path = currentPath.resolve(file.getName());
             if (path.toFile().exists()) {
                 if (Files.isDirectory(path)) {
                     updateTable(path);
@@ -95,20 +101,18 @@ public class FileTableController implements Initializable {
     }
 
     public void updateTable() {
-        try {
-            pathTextField.setText(currentPath.normalize().toAbsolutePath().toString());
-            fileTable.getItems().clear();
-            fileTable.getItems().addAll(FileManager.getFilesInformationByDirectoryPath(currentPath));
-        } catch (IOException e) {
-            AlertUtility.showErrorAlert(BundleHolder.getBundle().getString("message.alert.failed_to_upload_files"), ButtonType.OK);
-        }
+        pathTextField.setText(currentPath.normalize().toAbsolutePath().toString());
+        fileView.getItems().clear();
+        TableUpdateTask task = new TableUpdateTask(currentPath);
+        progressBarLoadingTable.visibleProperty().bind(task.runningProperty());
+        progressBarLoadingTable.progressProperty().bind(task.progressProperty());
+        task.setOnSucceeded(event -> Platform.runLater(() -> fileView.getItems().addAll(task.getValue())));
+        new Thread(task).start();
     }
 
-    public Path getCurrentPath() { return currentPath; }
-
     public List<File> getSelectedFiles() {
-        return fileTable.getSelectionModel().getSelectedItems().stream()
-                .map(item -> item.getPath().toFile())
+        return fileView.getSelectionModel().getSelectedItems().stream()
+                .map(item -> currentPath.resolve(item.getName()).toFile())
                 .collect(Collectors.toList());
     }
 
@@ -118,17 +122,17 @@ public class FileTableController implements Initializable {
     }
 
     private void initializeTable(ResourceBundle resources) {
-        TableColumn<FileInformation, String> fileNameColumn = new TableColumn<FileInformation, String>(resources.getString("ui.tableview.files.column.name"));
+        TableColumn<FileEntity, String> fileNameColumn = new TableColumn<FileEntity, String>(resources.getString("ui.tableview.files.column.name"));
         fileNameColumn.setCellValueFactory(file -> new SimpleObjectProperty<String>(file.getValue().getName()));
 
-        TableColumn<FileInformation, String> fileTypeColumn = new TableColumn<FileInformation, String>(resources.getString("ui.tableview.files.column.type"));
+        TableColumn<FileEntity, String> fileTypeColumn = new TableColumn<FileEntity, String>(resources.getString("ui.tableview.files.column.type"));
         fileTypeColumn.setCellValueFactory(file -> new SimpleObjectProperty<String>(file.getValue().getType()));
 
-        TableColumn<FileInformation, Long> fileSizeColumn = new TableColumn<FileInformation, Long>(resources.getString("ui.tableview.files.column.size"));
+        TableColumn<FileEntity, Long> fileSizeColumn = new TableColumn<FileEntity, Long>(resources.getString("ui.tableview.files.column.size"));
         fileSizeColumn.setCellValueFactory(file -> new SimpleObjectProperty<Long>(file.getValue().getSize()));
 
         fileSizeColumn.setCellFactory(column -> {
-            return new TableCell<FileInformation, Long>() {
+            return new TableCell<FileEntity, Long>() {
                 @Override
                 protected void updateItem(Long item, boolean empty) {
                     super.updateItem(item, empty);
@@ -143,10 +147,10 @@ public class FileTableController implements Initializable {
         });
 
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern(resources.getString("pattern.date"));
-        TableColumn<FileInformation, LocalDateTime> fileDateColumn = new TableColumn<FileInformation, LocalDateTime>(resources.getString("ui.tableview.files.column.date"));
-        fileDateColumn.setCellValueFactory(file -> new SimpleObjectProperty<LocalDateTime>(file.getValue().getDate()));
+        TableColumn<FileEntity, LocalDateTime> fileDateColumn = new TableColumn<FileEntity, LocalDateTime>(resources.getString("ui.tableview.files.column.date"));
+        fileDateColumn.setCellValueFactory(file -> new SimpleObjectProperty<LocalDateTime>(file.getValue().getLastDate()));
         fileDateColumn.setCellFactory(column -> {
-            return new TableCell<FileInformation, LocalDateTime>() {
+            return new TableCell<FileEntity, LocalDateTime>() {
                 @Override
                 protected void updateItem(LocalDateTime item, boolean empty) {
                     super.updateItem(item, empty);
@@ -158,14 +162,13 @@ public class FileTableController implements Initializable {
                 }
             };
         });
-
-        fileTable.focusedProperty().addListener(((observable, oldValue, newValue) -> {
+        fileView.focusedProperty().addListener(((observable, oldValue, newValue) -> {
             if (oldValue) {
-                fileTable.getSelectionModel().clearSelection();
+                fileView.getSelectionModel().clearSelection();
             }
         }));
-        fileTable.getColumns().addAll(fileNameColumn, fileTypeColumn, fileDateColumn, fileSizeColumn);
-        fileTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        fileView.getColumns().addAll(fileNameColumn, fileTypeColumn, fileDateColumn, fileSizeColumn);
+        fileView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     }
 
     private void updateFileSystemInfoLabels(Path path) {

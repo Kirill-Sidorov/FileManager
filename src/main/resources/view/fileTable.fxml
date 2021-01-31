@@ -14,8 +14,11 @@
     </HBox>
     <HBox>
         <Button styleClass="button-previous" onAction="#goPreviousFilesButton"/>
-        <TextField fx:id="pathTextField" editable="false" HBox.hgrow="ALWAYS"/>
+        <StackPane HBox.hgrow="ALWAYS">
+            <TextField fx:id="pathTextField" editable="false"/>
+            <ProgressBar fx:id="progressBarLoadingTable" progress="0.0"/>
+        </StackPane>
         <Button styleClass="button-refresh" onAction="#clickRefreshButton"/>
     </HBox>
-    <TableView fx:id="fileTable" VBox.vgrow="ALWAYS" onMouseClicked="#clickOnItemTableView"/>
+    <TableView fx:id="fileView" onMouseClicked="#clickOnItemTableView" VBox.vgrow="ALWAYS"/>
 </VBox>

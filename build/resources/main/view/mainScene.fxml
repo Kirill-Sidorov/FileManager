@@ -5,6 +5,9 @@
 
 <VBox prefHeight="600.0" prefWidth="1000.0" stylesheets="/style/styles.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.sidorov.filemanager.controller.FileManagerController">
+    <MenuBar>
+        <Menu text="%ui.menu_bar.menu.google_drive" onAction="#clickAddGoogleDrive"/>
+    </MenuBar>
     <HBox VBox.vgrow="ALWAYS">
         <fx:include fx:id="leftFileTable" source="fileTable.fxml" HBox.hgrow="ALWAYS"/>
         <fx:include fx:id="rightFileTable" source="fileTable.fxml" HBox.hgrow="ALWAYS"/>
