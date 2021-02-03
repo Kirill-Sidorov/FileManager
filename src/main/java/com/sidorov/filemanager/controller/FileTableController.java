@@ -1,19 +1,19 @@
 package com.sidorov.filemanager.controller;
 
-import com.sidorov.filemanager.model.FileEntity;
+import com.sidorov.filemanager.model.DriveManager;
+import com.sidorov.filemanager.model.entity.DriveEntity;
+import com.sidorov.filemanager.model.entity.FileEntity;
 import com.sidorov.filemanager.utility.BundleHolder;
-import com.sidorov.filemanager.utility.FileManager;
+import com.sidorov.filemanager.utility.LocalDriveManager;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.concurrent.Task;
-import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
+import javafx.util.StringConverter;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,7 +33,7 @@ public class FileTableController implements Initializable {
     private Label fileSystemUnallocatedSpaceLabel;
 
     @FXML
-    private ComboBox<String> diskComboBox;
+    private ComboBox<DriveEntity> diskComboBox;
 
     @FXML
     private TextField pathTextField;
@@ -44,41 +44,35 @@ public class FileTableController implements Initializable {
     @FXML
     private TableView<FileEntity> fileView;
 
-    private Path currentPath;
-    private String currentRootDirectoryString;
+    private DriveEntity currentDrive;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         initializeTable(resources);
-        currentPath = Paths.get("/");
+        initializeComboBox();
+        updateFileSystemInfoLabels();
         updateTable();
-        refreshComboBox();
-        diskComboBox.getSelectionModel().select(0);
-        currentRootDirectoryString = diskComboBox.getSelectionModel().getSelectedItem();
-        updateFileSystemInfoLabels(currentPath);
     }
 
-    public void clickRefreshButton(ActionEvent actionEvent) {
-        updateTable();
-    }
+    public void clickRefreshButton(ActionEvent actionEvent) { updateTable(); }
 
     public void selectDiskComboBox(ActionEvent actionEvent) {
-        String item = diskComboBox.getSelectionModel().getSelectedItem();
-        if (item != null && !item.equals(currentRootDirectoryString)) {
-            currentRootDirectoryString = item;
-            updateTable(Paths.get(item));
-            updateFileSystemInfoLabels(Paths.get(item));
+        DriveEntity drive = diskComboBox.getSelectionModel().getSelectedItem();
+        if (drive != null && !drive.equals(currentDrive)) {
+            currentDrive = drive;
+            updateTable();
+            updateFileSystemInfoLabels();
         }
     }
 
-    public void clickDiskComboBox(MouseEvent mouseEvent) {
-        refreshComboBox();
-    }
+    public void clickDiskComboBox(MouseEvent mouseEvent) { refreshComboBox(); }
 
     public void goPreviousFilesButton(ActionEvent actionEvent) {
+        /* локальная реализация
         if (currentPath.getParent() != null) {
             updateTable(currentPath.getParent());
         }
+        */
     }
 
     public void clickOnItemTableView(MouseEvent mouseEvent) {
@@ -87,6 +81,7 @@ public class FileTableController implements Initializable {
             if (file == null) {
                 return;
             }
+            /* локальная реализация
             Path path = currentPath.resolve(file.getName());
             if (path.toFile().exists()) {
                 if (Files.isDirectory(path)) {
@@ -97,28 +92,54 @@ public class FileTableController implements Initializable {
             } else {
                 AlertUtility.showErrorAlert(BundleHolder.getBundle().getString("message.alert.file_or_directory_does_not_exist"), ButtonType.OK);
             }
+            */
         }
     }
 
     public void updateTable() {
-        pathTextField.setText(currentPath.normalize().toAbsolutePath().toString());
+        // локальная реализация
+        //Path currentPath = Paths.get(currentDrive.getCurrentPath());
+        //pathTextField.setText(currentPath.normalize().toAbsolutePath().toString());
+        //
+        pathTextField.setText(currentDrive.getName());
         fileView.getItems().clear();
-        TableUpdateTask task = new TableUpdateTask(currentPath);
+        TableUpdateTask task = new TableUpdateTask(currentDrive);
         progressBarLoadingTable.visibleProperty().bind(task.runningProperty());
         progressBarLoadingTable.progressProperty().bind(task.progressProperty());
         task.setOnSucceeded(event -> Platform.runLater(() -> fileView.getItems().addAll(task.getValue())));
         new Thread(task).start();
     }
 
+
     public List<File> getSelectedFiles() {
+        // локальная реализация
         return fileView.getSelectionModel().getSelectedItems().stream()
-                .map(item -> currentPath.resolve(item.getName()).toFile())
+                .map(item -> Paths.get(currentDrive.getCurrentPath()).resolve(item.getName()).toFile())
                 .collect(Collectors.toList());
     }
 
-    private void updateTable(Path path) {
+    /*
+    private void updateTable(String path) {
         currentPath = path;
         updateTable();
+    }
+    */
+
+    private void initializeComboBox() {
+        diskComboBox.setConverter(new StringConverter<DriveEntity>() {
+            @Override
+            public String toString(DriveEntity object) {
+                return object == null ? "" : object.getName();
+            }
+
+            @Override
+            public DriveEntity fromString(String string) {
+                return null;
+            }
+        });
+        refreshComboBox();
+        diskComboBox.getSelectionModel().select(0);
+        currentDrive = diskComboBox.getSelectionModel().getSelectedItem();
     }
 
     private void initializeTable(ResourceBundle resources) {
@@ -171,32 +192,23 @@ public class FileTableController implements Initializable {
         fileView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     }
 
-    private void updateFileSystemInfoLabels(Path path) {
-        long totalSpace = 1L;
-        long unallocatedSpace = 1L;
+    private void updateFileSystemInfoLabels() {
         String format = BundleHolder.getBundle().getString("string.format.file_size");
-        try {
-            totalSpace = FileManager.getFileSystemTotalSpace(path);
-            unallocatedSpace = FileManager.getFileSystemUnallocatedSpace(path);
-        } catch (IOException e) {
-            fileSystemTotalSpaceLabel.setText(null);
-            fileSystemUnallocatedSpaceLabel.setText(null);
-            return;
-        }
-        fileSystemTotalSpaceLabel.setText(String.format(format, totalSpace));
-        fileSystemUnallocatedSpaceLabel.setText(String.format(format, unallocatedSpace));
+        fileSystemTotalSpaceLabel.setText(String.format(format, DriveManager.getInstance().getDriveTotalSpace(currentDrive)));
+        fileSystemUnallocatedSpaceLabel.setText(String.format(format, DriveManager.getInstance().getDriveUnallocatedSpace(currentDrive)));
     }
 
     private void refreshComboBox() {
         int index = diskComboBox.getSelectionModel().getSelectedIndex();
         diskComboBox.getItems().clear();
-        diskComboBox.getItems().addAll(FileManager.getFileSystemRootDirectories());
+        diskComboBox.getItems().addAll(DriveManager.getInstance().getDrives());
         diskComboBox.getSelectionModel().select(index);
     }
 
+    // локальная реализация
     private void runFile(Path path) {
         try {
-            FileManager.runFile(path);
+            LocalDriveManager.runFile(path);
         } catch (IOException e) {
             AlertUtility.showErrorAlert(BundleHolder.getBundle().getString("message.alert.failed_to_run_file"), ButtonType.OK);
         }

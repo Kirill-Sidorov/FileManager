@@ -1,7 +1,6 @@
 package com.sidorov.filemanager.utility;
 
-import com.sidorov.filemanager.model.FileEntity;
-import com.sidorov.filemanager.model.LocalFile;
+import com.sidorov.filemanager.model.entity.*;
 import org.apache.commons.io.FilenameUtils;
 
 import java.awt.*;
@@ -10,14 +9,15 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.ZoneOffset;;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-public class FileManager {
+public class LocalDriveManager {
 
-    private FileManager() {}
+    private LocalDriveManager() {}
 
     public static void runFile(Path path) throws IOException {
         if (Desktop.isDesktopSupported()) {
@@ -25,12 +25,24 @@ public class FileManager {
         }
     }
 
-    public static long getFileSystemTotalSpace(Path path) throws IOException {
-        return Files.getFileStore(path).getTotalSpace();
+    public static long getFileSystemTotalSpace(Path path) {
+        long totalSpace;
+        try {
+            totalSpace = Files.getFileStore(path).getTotalSpace();
+        } catch (IOException e) {
+            totalSpace = 0L;
+        }
+        return totalSpace;
     }
 
-    public static long getFileSystemUnallocatedSpace(Path path) throws IOException {
-        return Files.getFileStore(path).getUnallocatedSpace();
+    public static long getFileSystemUnallocatedSpace(Path path) {
+        long unallocatedSpace;
+        try {
+            unallocatedSpace = Files.getFileStore(path).getUnallocatedSpace();
+        } catch (IOException e) {
+            unallocatedSpace = 0L;
+        }
+        return unallocatedSpace;
     }
 
     public static FileEntity getFileEntity(Path path) {
@@ -51,14 +63,28 @@ public class FileManager {
         } else {
             type = FilenameUtils.getExtension(path.toString());
         }
-        return new LocalFile(name, lastDate, size, type);
+        return new FileEntity(name, lastDate, size, type);
     }
 
-    public static long getNumberFilesInDirectory(Path path) throws IOException {
-        return Files.list(path).count();
+    public static long getNumberFilesInDirectory(Path path) {
+        long numberFiles;
+        try {
+            numberFiles = Files.list(path).count();
+        } catch (IOException e) {
+            numberFiles = 0L;
+        }
+        return numberFiles;
     }
 
-    public static List<String> getFileSystemRootDirectories() {
+    public static List<DriveEntity> getLocalDrives() {
+        List<DriveEntity> drives = new ArrayList<DriveEntity>();
+        for (Path path : FileSystems.getDefault().getRootDirectories()) {
+            drives.add(new DriveEntity(path.toString(), Disk.LOCAL));
+        }
+        return drives;
+    }
+
+    public static List<String> getRootDirectories() {
         return StreamSupport.stream(FileSystems.getDefault().getRootDirectories().spliterator(), false)
                 .map(path -> path.toString())
                 .collect(Collectors.toList());
