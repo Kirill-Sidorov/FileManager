@@ -1,17 +1,16 @@
 package com.sidorov.filemanager.controller;
 
-import com.sidorov.filemanager.utility.BundleHolder;
-import javafx.concurrent.Task;
+import com.sidorov.filemanager.cloud.googledrive.GoogleDriveHolder;
+import com.sidorov.filemanager.controller.task.GoogleDriveAdderTask;
+import com.sidorov.filemanager.model.DriveManager;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.ButtonType;
-import org.apache.commons.io.FileUtils;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.ProgressBar;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
-import java.nio.file.CopyOption;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -20,12 +19,21 @@ public class FileManagerController implements Initializable {
 
     @FXML
     private FileTableController rightFileTableController;
-
     @FXML
     private FileTableController leftFileTableController;
 
+    @FXML
+    private MenuItem addGoogleDriveMenuItem;
+    @FXML
+    private MenuItem removeGoogleDriveMenuItem;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        removeGoogleDriveMenuItem.setDisable(true);
+        if (GoogleDriveHolder.isConnectedDrive()) {
+            addGoogleDriveMenuItem.setDisable(true);
+            removeGoogleDriveMenuItem.setDisable(false);
+        }
     }
 
     public void copyFileButton(ActionEvent actionEvent) {
@@ -69,7 +77,18 @@ public class FileManagerController implements Initializable {
     public void deleteButton(ActionEvent actionEvent) {
     }
 
-    public void clickAddGoogleDrive(ActionEvent actionEvent) {
+    public void addGoogleDriveMenuItem(ActionEvent actionEvent) {
+        addGoogleDriveMenuItem.setDisable(true);
+        removeGoogleDriveMenuItem.setDisable(false);
+        GoogleDriveAdderTask task = new GoogleDriveAdderTask();
+        //task.setOnSucceeded(event -> { DriveManager.getInstance().addGoogleDrive(); }); вызвать Alert, что диск подлючен
+        //task.setOnFailed(); alert что диск не удалось подключить
+        new Thread(task).start();
+    }
 
+    public void removeGoogleDriveMenuItem(ActionEvent actionEvent) {
+        removeGoogleDriveMenuItem.setDisable(true);
+        addGoogleDriveMenuItem.setDisable(false);
+        DriveManager.getInstance().removeGoogleDrive();
     }
 }

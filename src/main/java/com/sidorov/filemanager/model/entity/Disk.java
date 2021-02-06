@@ -1,26 +1,26 @@
 package com.sidorov.filemanager.model.entity;
 
-import com.sidorov.filemanager.model.ProxyDriveManageable;
-import com.sidorov.filemanager.model.GoogleProxyDriveManager;
-import com.sidorov.filemanager.model.LocalProxyDriveManager;
+import com.sidorov.filemanager.model.AdapterDriveManageable;
+import com.sidorov.filemanager.model.GoogleAdapterDriveManager;
+import com.sidorov.filemanager.model.LocalAdapterDriveManager;
 
 public enum Disk {
     LOCAL {
         @Override
-        public ProxyDriveManageable getDriveManager() {
-            return new LocalProxyDriveManager();
+        public AdapterDriveManageable getDriveManager() {
+            return new LocalAdapterDriveManager();
         }
     },
     GOOGLE {
         @Override
-        public ProxyDriveManageable getDriveManager() { return new GoogleProxyDriveManager(); }
+        public AdapterDriveManageable getDriveManager() { return new GoogleAdapterDriveManager(); }
     },
     DROPBOX {
         @Override
-        public ProxyDriveManageable getDriveManager() {
+        public AdapterDriveManageable getDriveManager() {
             return null;
         }
     };
 
-    public abstract ProxyDriveManageable getDriveManager();
+    public abstract AdapterDriveManageable getDriveManager();
 }

@@ -13,6 +13,12 @@ public class DriveEntity {
         this.currentPath = name;
     }
 
+    public DriveEntity(String name, String currentPath, Disk disk) {
+        this.name = name;
+        this.disk = disk;
+        this.currentPath = currentPath;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -25,6 +31,8 @@ public class DriveEntity {
     public int hashCode() {
         return Objects.hash(name);
     }
+
+    public DriveEntity clone() { return new DriveEntity(name, currentPath, disk); }
 
     public String getName() { return name; }
     public String getCurrentPath() { return currentPath; }

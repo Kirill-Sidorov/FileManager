@@ -1,6 +1,6 @@
 package com.sidorov.filemanager.operation;
 
-import com.sidorov.filemanager.model.ProgressDialog;
+import com.sidorov.filemanager.dialog.ProgressDialog;
 import javafx.concurrent.Task;
 
 import java.io.File;

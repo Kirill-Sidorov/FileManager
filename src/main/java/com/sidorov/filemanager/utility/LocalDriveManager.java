@@ -10,8 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -25,24 +24,17 @@ public class LocalDriveManager {
         }
     }
 
-    public static long getFileSystemTotalSpace(Path path) {
+    public static DriveSizeInfo getFileSystemSizeInfo(Path path) {
         long totalSpace;
-        try {
-            totalSpace = Files.getFileStore(path).getTotalSpace();
-        } catch (IOException e) {
-            totalSpace = 0L;
-        }
-        return totalSpace;
-    }
-
-    public static long getFileSystemUnallocatedSpace(Path path) {
         long unallocatedSpace;
         try {
+            totalSpace = Files.getFileStore(path).getTotalSpace();
             unallocatedSpace = Files.getFileStore(path).getUnallocatedSpace();
         } catch (IOException e) {
+            totalSpace = 0L;
             unallocatedSpace = 0L;
         }
-        return unallocatedSpace;
+        return new DriveSizeInfo(totalSpace, unallocatedSpace);
     }
 
     public static FileEntity getFileEntity(Path path) {
@@ -66,6 +58,7 @@ public class LocalDriveManager {
         return new FileEntity(name, lastDate, size, type);
     }
 
+    /*
     public static long getNumberFilesInDirectory(Path path) {
         long numberFiles;
         try {
@@ -75,18 +68,15 @@ public class LocalDriveManager {
         }
         return numberFiles;
     }
+    */
 
-    public static List<DriveEntity> getLocalDrives() {
-        List<DriveEntity> drives = new ArrayList<DriveEntity>();
-        for (Path path : FileSystems.getDefault().getRootDirectories()) {
-            drives.add(new DriveEntity(path.toString(), Disk.LOCAL));
-        }
-        return drives;
+    public static DriveEntity getDriveEntityByName(String name) {
+        return new DriveEntity(name, Disk.LOCAL);
     }
 
-    public static List<String> getRootDirectories() {
+    public static Set<String> getRootDirectories() {
         return StreamSupport.stream(FileSystems.getDefault().getRootDirectories().spliterator(), false)
                 .map(path -> path.toString())
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
     }
 }

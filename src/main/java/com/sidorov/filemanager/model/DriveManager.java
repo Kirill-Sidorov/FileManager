@@ -1,6 +1,8 @@
 package com.sidorov.filemanager.model;
 
-import com.sidorov.filemanager.cloud.CloudInstance;
+import com.sidorov.filemanager.cloud.googledrive.GDriveAuthorizationUtility;
+import com.sidorov.filemanager.cloud.googledrive.GoogleDriveHolder;
+import com.sidorov.filemanager.cloud.googledrive.GoogleDriveManager;
 import com.sidorov.filemanager.model.entity.DriveEntity;
 import com.sidorov.filemanager.utility.LocalDriveManager;
 
@@ -12,17 +14,24 @@ import java.util.*;
 public class DriveManager {
     private static DriveManager instance = new DriveManager();
 
-    private Set<DriveEntity> cloudDrives;
+    private Map<String, DriveEntity> cloudDrives;
+    private String GDriveName;
 
     private DriveManager() { init(); }
 
     private void init() {
-        cloudDrives = new HashSet<DriveEntity>();
-        File directory = new File("/tokens");
+        cloudDrives = new Hashtable<String, DriveEntity>();
+        initGoogleDrive();
+    }
+
+    private void initGoogleDrive() {
+        File directory = new File("tokens");
         if (directory.isDirectory() && directory.list().length != 0) {
             try {
-                CloudInstance.getInstance().addGDrive();
-                //cloudDrives = new DriveEntity()
+                GDriveAuthorizationUtility.createDrive();
+                DriveEntity drive = GoogleDriveManager.getDriveEntity();
+                GDriveName = drive.getName();
+                cloudDrives.put(drive.getName(), drive);
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (GeneralSecurityException e) {
@@ -35,19 +44,34 @@ public class DriveManager {
         return instance;
     }
 
-    public List<DriveEntity> getDrives() {
-        List<DriveEntity> listDrives = new ArrayList<DriveEntity>();
-        listDrives.addAll(LocalDriveManager.getLocalDrives());
-        listDrives.addAll(cloudDrives);
-        return listDrives;
+    public DriveEntity getDriveByName(String name) {
+        DriveEntity drive = cloudDrives.get(name);
+        if (drive == null) {
+            drive = LocalDriveManager.getDriveEntityByName(name);
+        } else {
+            drive = drive.clone();
+        }
+        return drive;
     }
 
-    public long getDriveTotalSpace(DriveEntity drive) {
-        return drive.getDisk().getDriveManager().getDriveTotalSpace(drive);
+    public Set<String> getDrives() {
+        Set<String> drives = LocalDriveManager.getRootDirectories();
+        drives.addAll(cloudDrives.keySet());
+        return drives;
     }
 
-    public long getDriveUnallocatedSpace(DriveEntity drive) {
-        return drive.getDisk().getDriveManager().getDriveUnallocatedSpace(drive);
+    public void addGoogleDrive() {
+        DriveEntity drive = GoogleDriveManager.getDriveEntity();
+        cloudDrives.put(drive.getName(), drive);
+    }
+
+    public void removeGoogleDrive() {
+        cloudDrives.remove(GDriveName);
+        GoogleDriveHolder.setDrive(null);
+        File directory = new File("tokens");
+        for (File token : directory.listFiles()) {
+            token.delete();
+        }
     }
 
 }

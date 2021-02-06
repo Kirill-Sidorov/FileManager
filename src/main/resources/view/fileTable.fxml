@@ -3,22 +3,21 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.sidorov.filemanager.controller.FileTableController">
+<VBox xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sidorov.filemanager.controller.FileTableController">
     <HBox>
-        <ComboBox fx:id="diskComboBox" onAction="#selectDiskComboBox" onMouseClicked="#clickDiskComboBox"/>
-        <Label styleClass="label-file-system-info" text="%ui.label.total_space"/>
-        <Label styleClass="label-file-system-info" fx:id="fileSystemTotalSpaceLabel"/>
-        <Label styleClass="label-file-system-info" text="%ui.label.unallocated_space"/>
-        <Label styleClass="label-file-system-info" fx:id="fileSystemUnallocatedSpaceLabel"/>
+        <ComboBox fx:id="diskComboBox" onAction="#selectDiskComboBox" onMouseClicked="#clickDiskComboBox" />
+        <ProgressBar fx:id="tableLoadProgressBar" styleClass="progress-bar-table-load" progress="0.0" maxWidth="Infinity" visible="true" HBox.hgrow="ALWAYS"/>
     </HBox>
     <HBox>
-        <Button styleClass="button-previous" onAction="#goPreviousFilesButton"/>
-        <StackPane HBox.hgrow="ALWAYS">
-            <TextField fx:id="pathTextField" editable="false"/>
-            <ProgressBar fx:id="progressBarLoadingTable" progress="0.0"/>
-        </StackPane>
-        <Button styleClass="button-refresh" onAction="#clickRefreshButton"/>
+        <Label styleClass="label-file-system-info" text="%ui.label.total_space" />
+        <Label fx:id="driveTotalSpaceLabel" styleClass="label-file-system-info" />
+        <Label styleClass="label-file-system-info" text="%ui.label.unallocated_space" />
+        <Label fx:id="driveUnallocatedSpaceLabel" styleClass="label-file-system-info" />
     </HBox>
-    <TableView fx:id="fileView" onMouseClicked="#clickOnItemTableView" VBox.vgrow="ALWAYS"/>
+    <HBox>
+        <Button onAction="#goPreviousFilesButton" styleClass="button-previous" />
+        <TextField fx:id="pathTextField" editable="false" HBox.hgrow="ALWAYS" />
+        <Button onAction="#clickRefreshButton" styleClass="button-refresh" />
+    </HBox>
+    <TableView fx:id="fileTableView" onMouseClicked="#clickOnItemTableView" VBox.vgrow="ALWAYS" />
 </VBox>

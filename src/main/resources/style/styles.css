@@ -9,3 +9,7 @@
 .button-previous {
     -fx-graphic: url(/img/arrow-previous.png);
 }
+
+.progress-bar-table-load {
+    -fx-padding: 0.5em 0.5em 0.5em 0.5em;
+}

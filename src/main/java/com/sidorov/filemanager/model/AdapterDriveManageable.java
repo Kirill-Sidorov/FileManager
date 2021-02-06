@@ -1,12 +1,12 @@
 package com.sidorov.filemanager.model;
 
 import com.sidorov.filemanager.model.entity.DriveEntity;
+import com.sidorov.filemanager.model.entity.DriveSizeInfo;
 import com.sidorov.filemanager.model.entity.FileEntity;
 
-public interface ProxyDriveManageable {
+public interface AdapterDriveManageable {
 
-    long getDriveTotalSpace(DriveEntity drive);
-    long getDriveUnallocatedSpace(DriveEntity drive);
+    DriveSizeInfo getDriveSizeInfo(final DriveEntity drive);
     long getNumberFilesInDirectory(String path);
     FileEntity getFileEntity(String path); // параметр ?
     void setPathToIterableDirectory(String path);
