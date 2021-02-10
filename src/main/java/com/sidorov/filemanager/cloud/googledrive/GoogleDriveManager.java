@@ -4,10 +4,11 @@ package com.sidorov.filemanager.cloud.googledrive;
 import com.google.api.services.drive.model.About;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
-import com.sidorov.filemanager.model.entity.Disk;
+import com.sidorov.filemanager.model.entity.Drive;
 import com.sidorov.filemanager.model.entity.DriveEntity;
 import com.sidorov.filemanager.model.entity.DriveSizeInfo;
 import com.sidorov.filemanager.model.entity.FileEntity;
+import com.sidorov.filemanager.utility.BundleHolder;
 import org.apache.tika.mime.*;
 
 import java.io.IOException;
@@ -18,6 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GoogleDriveManager {
+
+    private static final String FOLDER_MIME_TYPE = "application/vnd.google-apps.folder";
 
     public static DriveSizeInfo getDriveSizeInfo() {
         long totalSpace = 0L;
@@ -43,7 +46,7 @@ public class GoogleDriveManager {
             } catch (IOException e) {
                 name = "";
             }
-            return new DriveEntity(name, "root", Disk.GOOGLE);
+            return new DriveEntity(name, "root", Drive.GOOGLE);
         }
         return null;
     }
@@ -64,17 +67,21 @@ public class GoogleDriveManager {
 
     public static FileEntity getFileEntity(final File file) {
         long size = 0L;
-        String type;
+        String typeName;
         Instant instant = Instant.ofEpochMilli(file.getModifiedTime().getValue());
         LocalDateTime lastDate = LocalDateTime.ofInstant(instant, ZoneOffset.systemDefault());
         try {
-            type = MimeTypes.getDefaultMimeTypes().forName(file.getMimeType()).getExtension();
+            typeName = MimeTypes.getDefaultMimeTypes().forName(file.getMimeType()).getExtension();
         } catch (MimeTypeException e) {
-            type = "";
+            typeName = "";
         }
-        if (type.length() != 0) {
+        if (file.getMimeType().equals(FOLDER_MIME_TYPE)) {
+            typeName = BundleHolder.getBundle().getString("message.name.directory");
+            size = -1L;
+        }
+        if (typeName.length() != 0) {
             size = file.getSize();
         }
-        return new FileEntity(file.getId(), file.getName(), lastDate, size, type);
+        return new FileEntity(file.getId(), file.getName(), lastDate, size, typeName);
     }
 }

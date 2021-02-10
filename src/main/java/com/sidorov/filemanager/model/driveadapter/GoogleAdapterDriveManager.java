@@ -1,4 +1,4 @@
-package com.sidorov.filemanager.model;
+package com.sidorov.filemanager.model.driveadapter;
 
 import com.google.api.services.drive.model.File;
 import com.sidorov.filemanager.cloud.googledrive.GoogleDriveManager;

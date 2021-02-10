@@ -2,11 +2,11 @@ package com.sidorov.filemanager.model.entity;
 
 import java.util.List;
 
-public class NewTableData {
+public class TableData {
     private List<FileEntity> files;
     private DriveSizeInfo driveSizeInfo;
 
-    public NewTableData(List<FileEntity> files, DriveSizeInfo driveSizeInfo) {
+    public TableData(List<FileEntity> files, DriveSizeInfo driveSizeInfo) {
         this.files = files;
         this.driveSizeInfo = driveSizeInfo;
     }

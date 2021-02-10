@@ -4,9 +4,11 @@ import com.sidorov.filemanager.controller.task.FileTableUpdateTask;
 import com.sidorov.filemanager.model.DriveManager;
 import com.sidorov.filemanager.model.entity.DriveEntity;
 import com.sidorov.filemanager.model.entity.FileEntity;
-import com.sidorov.filemanager.model.entity.NewTableData;
+import com.sidorov.filemanager.model.entity.FileExecutionResult;
+import com.sidorov.filemanager.model.entity.TableData;
 import com.sidorov.filemanager.utility.BundleHolder;
-import com.sidorov.filemanager.utility.LocalDriveManager;
+import com.sidorov.filemanager.utility.FileManager;
+import com.sidorov.filemanager.local.LocalDriveManager;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
@@ -80,9 +82,18 @@ public class FileTableController implements Initializable {
 
     public void clickOnItemTableView(MouseEvent mouseEvent) {
         if (mouseEvent.getClickCount() == 2) {
-            FileEntity file = fileTableView.getSelectionModel().getSelectedItem();
-            if (file == null) {
+            FileEntity fileEntity = fileTableView.getSelectionModel().getSelectedItem();
+            if (fileEntity == null && currentDrive == null) {
                 return;
+            }
+            FileExecutionResult result = FileManager.executeFileEntity(fileEntity, currentDrive);
+            if (!result.isError()) {
+                if (!result.isFileExecute()) {
+                    currentDrive.setCurrentPath(result.getNewDrivePath());
+                    updateTable();
+                }
+            } else {
+                AlertUtility.showErrorAlert(BundleHolder.getBundle().getString("message.alert.file_or_directory_does_not_exist"), ButtonType.OK);
             }
             /* локальная реализация
             Path path = currentPath.resolve(file.getName());
@@ -109,11 +120,10 @@ public class FileTableController implements Initializable {
         FileTableUpdateTask task = new FileTableUpdateTask(currentDrive);
         tableLoadProgressBar.progressProperty().bind(task.progressProperty());
         task.setOnSucceeded(event -> Platform.runLater(() -> {
-            NewTableData newTableData = task.getValue();
-            fileTableView.getItems().addAll(newTableData.getFiles());
-            driveTotalSpaceLabel.setText(String.format(format, newTableData.getTotalSpace()));
-            driveUnallocatedSpaceLabel.setText(String.format(format, newTableData.getUnallocatedSpace()));
-
+            TableData tableData = task.getValue();
+            fileTableView.getItems().addAll(tableData.getFiles());
+            driveTotalSpaceLabel.setText(String.format(format, tableData.getTotalSpace()));
+            driveUnallocatedSpaceLabel.setText(String.format(format, tableData.getUnallocatedSpace()));
         }));
         new Thread(task).start();
     }
@@ -137,7 +147,7 @@ public class FileTableController implements Initializable {
         fileNameColumn.setCellValueFactory(file -> new SimpleObjectProperty<String>(file.getValue().getName()));
 
         TableColumn<FileEntity, String> fileTypeColumn = new TableColumn<FileEntity, String>(resources.getString("ui.tableview.files.column.type"));
-        fileTypeColumn.setCellValueFactory(file -> new SimpleObjectProperty<String>(file.getValue().getType()));
+        fileTypeColumn.setCellValueFactory(file -> new SimpleObjectProperty<String>(file.getValue().getTypeName()));
 
         TableColumn<FileEntity, Long> fileSizeColumn = new TableColumn<FileEntity, Long>(resources.getString("ui.tableview.files.column.size"));
         fileSizeColumn.setCellValueFactory(file -> new SimpleObjectProperty<Long>(file.getValue().getSize()));
@@ -159,7 +169,7 @@ public class FileTableController implements Initializable {
 
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern(resources.getString("pattern.date"));
         TableColumn<FileEntity, LocalDateTime> fileDateColumn = new TableColumn<FileEntity, LocalDateTime>(resources.getString("ui.tableview.files.column.date"));
-        fileDateColumn.setCellValueFactory(file -> new SimpleObjectProperty<LocalDateTime>(file.getValue().getLastDate()));
+        fileDateColumn.setCellValueFactory(file -> new SimpleObjectProperty<LocalDateTime>(file.getValue().getModifiedDate()));
         fileDateColumn.setCellFactory(column -> {
             return new TableCell<FileEntity, LocalDateTime>() {
                 @Override

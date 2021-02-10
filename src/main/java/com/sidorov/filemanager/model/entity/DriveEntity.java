@@ -5,17 +5,17 @@ import java.util.Objects;
 public class DriveEntity {
     private String name;
     private String currentPath;
-    private Disk disk;
+    private Drive drive;
 
-    public DriveEntity(String name, Disk disk) {
+    public DriveEntity(String name, Drive drive) {
         this.name = name;
-        this.disk = disk;
+        this.drive = drive;
         this.currentPath = name;
     }
 
-    public DriveEntity(String name, String currentPath, Disk disk) {
+    public DriveEntity(String name, String currentPath, Drive drive) {
         this.name = name;
-        this.disk = disk;
+        this.drive = drive;
         this.currentPath = currentPath;
     }
 
@@ -32,11 +32,11 @@ public class DriveEntity {
         return Objects.hash(name);
     }
 
-    public DriveEntity clone() { return new DriveEntity(name, currentPath, disk); }
+    public DriveEntity clone() { return new DriveEntity(name, currentPath, drive); }
 
     public String getName() { return name; }
     public String getCurrentPath() { return currentPath; }
-    public Disk getDisk() { return disk; }
+    public Drive getDrive() { return drive; }
 
     public void setCurrentPath(String currentPath) { this.currentPath = currentPath; }
 }

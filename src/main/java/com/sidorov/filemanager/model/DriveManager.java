@@ -4,7 +4,7 @@ import com.sidorov.filemanager.cloud.googledrive.GDriveAuthorizationUtility;
 import com.sidorov.filemanager.cloud.googledrive.GoogleDriveHolder;
 import com.sidorov.filemanager.cloud.googledrive.GoogleDriveManager;
 import com.sidorov.filemanager.model.entity.DriveEntity;
-import com.sidorov.filemanager.utility.LocalDriveManager;
+import com.sidorov.filemanager.local.LocalDriveManager;
 
 import java.io.File;
 import java.io.IOException;

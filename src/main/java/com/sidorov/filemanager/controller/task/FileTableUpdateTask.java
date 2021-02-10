@@ -1,17 +1,17 @@
 package com.sidorov.filemanager.controller.task;
 
-import com.sidorov.filemanager.model.AdapterDriveManageable;
+import com.sidorov.filemanager.model.driveadapter.AdapterDriveManageable;
 import com.sidorov.filemanager.model.entity.DriveEntity;
 import com.sidorov.filemanager.model.entity.DriveSizeInfo;
 import com.sidorov.filemanager.model.entity.FileEntity;
 
-import com.sidorov.filemanager.model.entity.NewTableData;
+import com.sidorov.filemanager.model.entity.TableData;
 import javafx.concurrent.Task;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileTableUpdateTask extends Task<NewTableData> {
+public class FileTableUpdateTask extends Task<TableData> {
 
     private final DriveEntity drive;
 
@@ -20,10 +20,10 @@ public class FileTableUpdateTask extends Task<NewTableData> {
     }
 
     @Override
-    protected NewTableData call() throws Exception {
+    protected TableData call() throws Exception {
         List<FileEntity> files = new ArrayList<FileEntity>();
         String dirPath = drive.getCurrentPath();
-        AdapterDriveManageable driveManager = drive.getDisk().getDriveManager();
+        AdapterDriveManageable driveManager = drive.getDrive().getDriveManager();
         driveManager.setPathToIterableDirectory(dirPath);
         DriveSizeInfo sizeInfo = driveManager.getDriveSizeInfo(drive);
         final long numberFiles = driveManager.getNumberFilesInDirectory(dirPath);
@@ -33,6 +33,6 @@ public class FileTableUpdateTask extends Task<NewTableData> {
         }
         updateProgress(files.size(), numberFiles);
         driveManager = null;
-        return new NewTableData(files, sizeInfo);
+        return new TableData(files, sizeInfo);
     }
 }

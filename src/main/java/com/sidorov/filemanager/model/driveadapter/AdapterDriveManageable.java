@@ -1,4 +1,4 @@
-package com.sidorov.filemanager.model;
+package com.sidorov.filemanager.model.driveadapter;
 
 import com.sidorov.filemanager.model.entity.DriveEntity;
 import com.sidorov.filemanager.model.entity.DriveSizeInfo;

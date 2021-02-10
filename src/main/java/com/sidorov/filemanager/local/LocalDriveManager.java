@@ -1,6 +1,7 @@
-package com.sidorov.filemanager.utility;
+package com.sidorov.filemanager.local;
 
 import com.sidorov.filemanager.model.entity.*;
+import com.sidorov.filemanager.utility.BundleHolder;
 import org.apache.commons.io.FilenameUtils;
 
 import java.awt.*;
@@ -41,7 +42,7 @@ public class LocalDriveManager {
         String name = null;
         long size = -1L;
         LocalDateTime lastDate = null;
-        String type = null;
+        String typeName = null;
         try {
             name = path.getFileName().toString();
             size = Files.size(path);
@@ -50,12 +51,12 @@ public class LocalDriveManager {
             throw new RuntimeException("Unable to create file information from path");
         }
         if (Files.isDirectory(path)) {
-            type = BundleHolder.getBundle().getString("message.name.directory");
+            typeName = BundleHolder.getBundle().getString("message.name.directory");
             size = -1L;
         } else {
-            type = FilenameUtils.getExtension(path.toString());
+            typeName = FilenameUtils.getExtension(path.toString());
         }
-        return new FileEntity(name, lastDate, size, type);
+        return new FileEntity(name, lastDate, size, typeName);
     }
 
     /*
@@ -71,7 +72,7 @@ public class LocalDriveManager {
     */
 
     public static DriveEntity getDriveEntityByName(String name) {
-        return new DriveEntity(name, Disk.LOCAL);
+        return new DriveEntity(name, Drive.LOCAL);
     }
 
     public static Set<String> getRootDirectories() {

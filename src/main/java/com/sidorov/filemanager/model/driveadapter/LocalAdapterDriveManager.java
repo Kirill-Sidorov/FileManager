@@ -1,9 +1,9 @@
-package com.sidorov.filemanager.model;
+package com.sidorov.filemanager.model.driveadapter;
 
 import com.sidorov.filemanager.model.entity.DriveEntity;
 import com.sidorov.filemanager.model.entity.DriveSizeInfo;
 import com.sidorov.filemanager.model.entity.FileEntity;
-import com.sidorov.filemanager.utility.LocalDriveManager;
+import com.sidorov.filemanager.local.LocalDriveManager;
 
 import java.io.File;
 import java.nio.file.Paths;

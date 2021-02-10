@@ -7,7 +7,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.ProgressBar;
 
 import java.io.File;
 import java.net.URL;
