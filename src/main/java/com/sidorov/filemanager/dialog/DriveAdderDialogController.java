@@ -1,4 +1,4 @@
-package com.sidorov.filemanager.controller;
+package com.sidorov.filemanager.dialog;
 
 import javafx.event.ActionEvent;
 

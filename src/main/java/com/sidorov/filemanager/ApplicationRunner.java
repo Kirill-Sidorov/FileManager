@@ -18,7 +18,6 @@ public class ApplicationRunner extends Application {
         BundleHolder.setLocale(new Locale("ru", "RU"));
         Parent root = FXMLLoader.load(getClass().getResource("/view/mainScene.fxml"), BundleHolder.getBundle());
         Scene scene = new Scene(root);
-        setUserAgentStylesheet(STYLESHEET_CASPIAN);
         stage.setTitle(BundleHolder.getBundle().getString("stage.name"));
         stage.getIcons().add(new Image("/img/app-icon.png"));
         stage.setScene(scene);

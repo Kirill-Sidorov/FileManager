@@ -4,11 +4,7 @@ import com.sidorov.filemanager.controller.task.FileTableUpdateTask;
 import com.sidorov.filemanager.model.DriveManager;
 import com.sidorov.filemanager.model.entity.DriveEntity;
 import com.sidorov.filemanager.model.entity.FileEntity;
-import com.sidorov.filemanager.model.entity.FileExecutionResult;
 import com.sidorov.filemanager.model.entity.TableData;
-import com.sidorov.filemanager.utility.BundleHolder;
-import com.sidorov.filemanager.utility.FileManager;
-import com.sidorov.filemanager.local.LocalDriveManager;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
@@ -19,7 +15,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.nio.file.*;
 import java.time.LocalDateTime;
@@ -72,49 +67,26 @@ public class FileTableController implements Initializable {
 
     public void clickDiskComboBox(MouseEvent mouseEvent) { refreshComboBox(); }
 
-    public void goPreviousFilesButton(ActionEvent actionEvent) {
-        /* локальная реализация
-        if (currentPath.getParent() != null) {
-            updateTable(currentPath.getParent());
+    public void clickGoPreviousDirectoryButton(ActionEvent actionEvent) {
+        boolean isNeedUpdateTable = FileControllerUtility.goPreviousDirectory(currentDrive);
+        if (isNeedUpdateTable) {
+            updateTable();
         }
-        */
     }
 
     public void clickOnItemTableView(MouseEvent mouseEvent) {
         if (mouseEvent.getClickCount() == 2) {
             FileEntity fileEntity = fileTableView.getSelectionModel().getSelectedItem();
-            if (fileEntity == null && currentDrive == null) {
-                return;
-            }
-            FileExecutionResult result = FileManager.executeFileEntity(fileEntity, currentDrive);
-            if (!result.isError()) {
-                if (!result.isFileExecute()) {
-                    currentDrive.setCurrentPath(result.getNewDrivePath());
+            if (fileEntity != null && currentDrive != null) {
+                boolean isNeedUpdateTable = FileControllerUtility.performAction(fileEntity, currentDrive);
+                if (isNeedUpdateTable) {
                     updateTable();
                 }
-            } else {
-                AlertUtility.showErrorAlert(BundleHolder.getBundle().getString("message.alert.file_or_directory_does_not_exist"), ButtonType.OK);
             }
-            /* локальная реализация
-            Path path = currentPath.resolve(file.getName());
-            if (path.toFile().exists()) {
-                if (Files.isDirectory(path)) {
-                    updateTable(path);
-                } else {
-                    runFile(path);
-                }
-            } else {
-                AlertUtility.showErrorAlert(BundleHolder.getBundle().getString("message.alert.file_or_directory_does_not_exist"), ButtonType.OK);
-            }
-            */
         }
     }
 
     public void updateTable() {
-        // локальная реализация
-        //Path currentPath = Paths.get(currentDrive.getCurrentPath());
-        //pathTextField.setText(currentPath.normalize().toAbsolutePath().toString());
-        //
         pathTextField.setText(currentDrive.getCurrentPath());
         fileTableView.getItems().clear();
         FileTableUpdateTask task = new FileTableUpdateTask(currentDrive);
@@ -197,14 +169,5 @@ public class FileTableController implements Initializable {
         diskComboBox.getItems().clear();
         diskComboBox.getItems().addAll(DriveManager.getInstance().getDrives());
         diskComboBox.getSelectionModel().select(index);
-    }
-
-    // локальная реализация
-    private void runFile(Path path) {
-        try {
-            LocalDriveManager.runFile(path);
-        } catch (IOException e) {
-            AlertUtility.showErrorAlert(BundleHolder.getBundle().getString("message.alert.failed_to_run_file"), ButtonType.OK);
-        }
     }
 }

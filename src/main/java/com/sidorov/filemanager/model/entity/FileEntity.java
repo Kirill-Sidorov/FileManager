@@ -9,17 +9,12 @@ public class FileEntity {
     private long size;
     private String typeName;
 
-    public FileEntity(String name, LocalDateTime modifiedDate, long size, String typeName) {
-        this.id = name;
+    public FileEntity(String id, String name, LocalDateTime modifiedDate, long size, String typeName) {
+        this.id = id;
         this.name = name;
         this.modifiedDate = modifiedDate;
         this.size = size;
         this.typeName = typeName;
-    }
-
-    public FileEntity(String id, String name, LocalDateTime modifiedDate, long size, String typeName) {
-        this(name, modifiedDate, size, typeName);
-        this.id = id;
     }
 
     public String getId() { return id; }

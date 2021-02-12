@@ -5,7 +5,7 @@
 
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.sidorov.filemanager.controller.DriveAdderDialogController"
+            fx:controller="com.sidorov.filemanager.dialog.DriveAdderDialogController"
             prefHeight="150.0" prefWidth="250.0">
     <children>
         <Button text="Google Drive Add" onAction="#clickAddGoogleDrive"/>

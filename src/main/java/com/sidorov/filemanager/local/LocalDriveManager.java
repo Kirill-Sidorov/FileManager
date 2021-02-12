@@ -4,7 +4,6 @@ import com.sidorov.filemanager.model.entity.*;
 import com.sidorov.filemanager.utility.BundleHolder;
 import org.apache.commons.io.FilenameUtils;
 
-import java.awt.*;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -15,15 +14,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-public class LocalDriveManager {
+public final class LocalDriveManager {
 
     private LocalDriveManager() {}
-
-    public static void runFile(Path path) throws IOException {
-        if (Desktop.isDesktopSupported()) {
-            Desktop.getDesktop().open(path.toFile());
-        }
-    }
 
     public static DriveSizeInfo getFileSystemSizeInfo(Path path) {
         long totalSpace;
@@ -41,12 +34,12 @@ public class LocalDriveManager {
     public static FileEntity getFileEntity(Path path) {
         String name = null;
         long size = -1L;
-        LocalDateTime lastDate = null;
+        LocalDateTime modifiedDate = null;
         String typeName = null;
         try {
             name = path.getFileName().toString();
             size = Files.size(path);
-            lastDate = LocalDateTime.ofInstant(Files.getLastModifiedTime(path).toInstant(), ZoneOffset.systemDefault());
+            modifiedDate = LocalDateTime.ofInstant(Files.getLastModifiedTime(path).toInstant(), ZoneOffset.systemDefault());
         } catch (IOException e) {
             throw new RuntimeException("Unable to create file information from path");
         }
@@ -56,7 +49,7 @@ public class LocalDriveManager {
         } else {
             typeName = FilenameUtils.getExtension(path.toString());
         }
-        return new FileEntity(name, lastDate, size, typeName);
+        return new FileEntity(path.toString(), name, modifiedDate, size, typeName);
     }
 
     /*
