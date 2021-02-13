@@ -2,7 +2,7 @@ package com.sidorov.filemanager.controller;
 
 import com.sidorov.filemanager.cloud.googledrive.GoogleDriveHolder;
 import com.sidorov.filemanager.controller.task.GoogleDriveAdderTask;
-import com.sidorov.filemanager.model.DriveManager;
+import com.sidorov.filemanager.model.MappedDriveManager;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -88,6 +88,6 @@ public class FileManagerController implements Initializable {
     public void removeGoogleDriveMenuItem(ActionEvent actionEvent) {
         removeGoogleDriveMenuItem.setDisable(true);
         addGoogleDriveMenuItem.setDisable(false);
-        DriveManager.getInstance().removeGoogleDrive();
+        MappedDriveManager.getInstance().removeGoogleDrive();
     }
 }

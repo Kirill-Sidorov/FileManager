@@ -35,4 +35,6 @@ public class FileEntity {
         return typeName;
     }
 
+    public boolean isDirectory() { return size == -1L; }
+
 }

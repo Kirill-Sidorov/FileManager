@@ -1,9 +1,9 @@
-package com.sidorov.filemanager.local;
+package com.sidorov.filemanager.utility;
 
 import com.sidorov.filemanager.model.entity.*;
-import com.sidorov.filemanager.utility.BundleHolder;
 import org.apache.commons.io.FilenameUtils;
 
+import java.awt.*;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -33,7 +33,7 @@ public final class LocalDriveManager {
 
     public static FileEntity getFileEntity(Path path) {
         String name = null;
-        long size = -1L;
+        long size = 0L;
         LocalDateTime modifiedDate = null;
         String typeName = null;
         try {
@@ -73,4 +73,14 @@ public final class LocalDriveManager {
                 .map(path -> path.toString())
                 .collect(Collectors.toSet());
     }
+
+    public static boolean isFileExist(Path path) { return path.toFile().exists(); }
+
+    public static void executeFile(Path path) throws IOException {
+        if (Desktop.isDesktopSupported()) {
+            Desktop.getDesktop().open(path.toFile());
+        }
+    }
+
+    public static Path getParentDirectory(Path path) { return path.getParent(); }
 }

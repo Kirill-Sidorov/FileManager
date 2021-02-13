@@ -78,8 +78,13 @@ public final class GoogleDriveManager {
         return new FileEntity(file.getId(), file.getName(), lastDate, size, typeName);
     }
 
-    public static String getParentDirectory(String dirId) throws IOException {
-        File file = GoogleDriveHolder.getDrive().files().get(dirId).setFields("parents").execute();
+    public static String getParentDirectory(String dirId) {
+        File file;
+        try {
+            file = GoogleDriveHolder.getDrive().files().get(dirId).setFields("parents").execute();
+        } catch (IOException e) {
+            file = null;
+        }
         if (file.getParents() != null) {
             return file.getParents().get(0);
         }

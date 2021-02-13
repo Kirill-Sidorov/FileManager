@@ -4,20 +4,20 @@ import com.sidorov.filemanager.cloud.googledrive.GDriveAuthorizationUtility;
 import com.sidorov.filemanager.cloud.googledrive.GoogleDriveHolder;
 import com.sidorov.filemanager.cloud.googledrive.GoogleDriveManager;
 import com.sidorov.filemanager.model.entity.DriveEntity;
-import com.sidorov.filemanager.local.LocalDriveManager;
+import com.sidorov.filemanager.utility.LocalDriveManager;
 
 import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.*;
 
-public class DriveManager {
-    private static DriveManager instance = new DriveManager();
+public class MappedDriveManager {
+    private static MappedDriveManager instance = new MappedDriveManager();
 
     private Map<String, DriveEntity> cloudDrives;
     private String GDriveName;
 
-    private DriveManager() { init(); }
+    private MappedDriveManager() { init(); }
 
     private void init() {
         cloudDrives = new Hashtable<String, DriveEntity>();
@@ -40,7 +40,7 @@ public class DriveManager {
         }
     }
 
-    public static DriveManager getInstance() {
+    public static MappedDriveManager getInstance() {
         return instance;
     }
 

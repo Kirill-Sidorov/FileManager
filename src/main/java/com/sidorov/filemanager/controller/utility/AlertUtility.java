@@ -1,4 +1,4 @@
-package com.sidorov.filemanager.controller;
+package com.sidorov.filemanager.controller.utility;
 
 import com.sidorov.filemanager.utility.BundleHolder;
 import javafx.scene.control.Alert;

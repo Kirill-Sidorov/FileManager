@@ -1,7 +1,9 @@
 package com.sidorov.filemanager.controller;
 
-import com.sidorov.filemanager.controller.task.FileTableUpdateTask;
-import com.sidorov.filemanager.model.DriveManager;
+import com.sidorov.filemanager.controller.service.ItemClickService;
+import com.sidorov.filemanager.controller.service.TableUpdateService;
+import com.sidorov.filemanager.controller.utility.FileManagerControllerUtility;
+import com.sidorov.filemanager.model.MappedDriveManager;
 import com.sidorov.filemanager.model.entity.DriveEntity;
 import com.sidorov.filemanager.model.entity.FileEntity;
 import com.sidorov.filemanager.model.entity.TableData;
@@ -42,12 +44,15 @@ public class FileTableController implements Initializable {
     @FXML
     private TableView<FileEntity> fileTableView;
 
+    private TableUpdateService tableUpdateService;
+    private ItemClickService itemClickService;
     private DriveEntity currentDrive;
     private String format;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        format =resources.getString("string.format.file_size");
+        format = resources.getString("string.format.file_size");
+        initializeServices();
         initializeTable(resources);
         initializeComboBox();
         updateTable();
@@ -60,7 +65,7 @@ public class FileTableController implements Initializable {
     public void selectDiskComboBox(ActionEvent actionEvent) {
         String drive = diskComboBox.getSelectionModel().getSelectedItem();
         if (drive != null && !drive.equals(currentDrive.getName())) {
-            currentDrive = DriveManager.getInstance().getDriveByName(drive);
+            currentDrive = MappedDriveManager.getInstance().getDriveByName(drive);
             updateTable();
         }
     }
@@ -68,7 +73,7 @@ public class FileTableController implements Initializable {
     public void clickDiskComboBox(MouseEvent mouseEvent) { refreshComboBox(); }
 
     public void clickGoPreviousDirectoryButton(ActionEvent actionEvent) {
-        boolean isNeedUpdateTable = FileControllerUtility.goPreviousDirectory(currentDrive);
+        boolean isNeedUpdateTable = FileManagerControllerUtility.goPreviousDirectory(currentDrive);
         if (isNeedUpdateTable) {
             updateTable();
         }
@@ -78,10 +83,9 @@ public class FileTableController implements Initializable {
         if (mouseEvent.getClickCount() == 2) {
             FileEntity fileEntity = fileTableView.getSelectionModel().getSelectedItem();
             if (fileEntity != null && currentDrive != null) {
-                boolean isNeedUpdateTable = FileControllerUtility.performAction(fileEntity, currentDrive);
-                if (isNeedUpdateTable) {
-                    updateTable();
-                }
+                itemClickService.reset();
+                itemClickService.setDrive(fileEntity, currentDrive);
+                itemClickService.start();
             }
         }
     }
@@ -89,17 +93,10 @@ public class FileTableController implements Initializable {
     public void updateTable() {
         pathTextField.setText(currentDrive.getCurrentPath());
         fileTableView.getItems().clear();
-        FileTableUpdateTask task = new FileTableUpdateTask(currentDrive);
-        tableLoadProgressBar.progressProperty().bind(task.progressProperty());
-        task.setOnSucceeded(event -> Platform.runLater(() -> {
-            TableData tableData = task.getValue();
-            fileTableView.getItems().addAll(tableData.getFiles());
-            driveTotalSpaceLabel.setText(String.format(format, tableData.getTotalSpace()));
-            driveUnallocatedSpaceLabel.setText(String.format(format, tableData.getUnallocatedSpace()));
-        }));
-        new Thread(task).start();
+        tableUpdateService.reset();
+        tableUpdateService.setDrive(currentDrive);
+        tableUpdateService.start();
     }
-
 
     public List<File> getSelectedFiles() {
         // локальная реализация
@@ -108,10 +105,28 @@ public class FileTableController implements Initializable {
                 .collect(Collectors.toList());
     }
 
+    private void initializeServices() {
+        tableUpdateService = new TableUpdateService();
+        tableLoadProgressBar.progressProperty().bind(tableUpdateService.progressProperty());
+        tableUpdateService.setOnSucceeded(event -> Platform.runLater(() -> {
+            TableData tableData = tableUpdateService.getValue();
+            fileTableView.getItems().addAll(tableData.getFiles());
+            driveTotalSpaceLabel.setText(String.format(format, tableData.getTotalSpace()));
+            driveUnallocatedSpaceLabel.setText(String.format(format, tableData.getUnallocatedSpace()));
+        }));
+
+        itemClickService = new ItemClickService();
+        itemClickService.setOnSucceeded(event -> {
+            if (itemClickService.getValue()) {
+                updateTable();
+            }
+        });
+    }
+
     private void initializeComboBox() {
-        diskComboBox.getItems().addAll(DriveManager.getInstance().getDrives());
+        diskComboBox.getItems().addAll(MappedDriveManager.getInstance().getDrives());
         diskComboBox.getSelectionModel().select(0);
-        currentDrive = DriveManager.getInstance().getDriveByName(diskComboBox.getSelectionModel().getSelectedItem());
+        currentDrive = MappedDriveManager.getInstance().getDriveByName(diskComboBox.getSelectionModel().getSelectedItem());
     }
 
     private void initializeTable(ResourceBundle resources) {
@@ -167,7 +182,7 @@ public class FileTableController implements Initializable {
     private void refreshComboBox() {
         int index = diskComboBox.getSelectionModel().getSelectedIndex();
         diskComboBox.getItems().clear();
-        diskComboBox.getItems().addAll(DriveManager.getInstance().getDrives());
+        diskComboBox.getItems().addAll(MappedDriveManager.getInstance().getDrives());
         diskComboBox.getSelectionModel().select(index);
     }
 }
