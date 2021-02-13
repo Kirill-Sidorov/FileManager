@@ -50,17 +50,19 @@ public final class GoogleDriveManager {
         return null;
     }
 
-    public static List<File> getListDirectoryFiles(String dirId) throws IOException {
+    public static List<File> getListDirectoryFiles(final String dirId) throws IOException {
         List<File> files = new ArrayList<>();
-        String pageToken = null;
-        do {
-            FileList result = GoogleDriveHolder.getDrive().files().list()
-                                .setQ(String.format("'%s' in parents", dirId))
-                                .setFields("nextPageToken, files(id, name, size, modifiedTime, mimeType, fileExtension)")
-                                .execute();
-            files.addAll(result.getFiles());
-            pageToken = result.getNextPageToken();
-        } while (pageToken != null);
+        if (GoogleDriveHolder.isConnectedDrive()) {
+            String pageToken = null;
+            do {
+                FileList result = GoogleDriveHolder.getDrive().files().list()
+                        .setQ(String.format("'%s' in parents", dirId))
+                        .setFields("nextPageToken, files(id, name, size, modifiedTime, mimeType, fileExtension)")
+                        .execute();
+                files.addAll(result.getFiles());
+                pageToken = result.getNextPageToken();
+            } while (pageToken != null);
+        }
         return files;
     }
 
@@ -78,10 +80,12 @@ public final class GoogleDriveManager {
         return new FileEntity(file.getId(), file.getName(), lastDate, size, typeName);
     }
 
-    public static String getParentDirectory(String dirId) {
-        File file;
+    public static String getParentDirectory(final String dirId) {
+        File file = null;
         try {
-            file = GoogleDriveHolder.getDrive().files().get(dirId).setFields("parents").execute();
+            if (GoogleDriveHolder.isConnectedDrive()) {
+                file = GoogleDriveHolder.getDrive().files().get(dirId).setFields("parents").execute();
+            }
         } catch (IOException e) {
             file = null;
         }
@@ -89,5 +93,17 @@ public final class GoogleDriveManager {
             return file.getParents().get(0);
         }
         return "";
+    }
+
+    public static boolean isFileExist(final String id) {
+        File file = null;
+        try {
+            if (GoogleDriveHolder.isConnectedDrive()) {
+                file = GoogleDriveHolder.getDrive().files().get(id).execute();
+            }
+        } catch (IOException e) {
+            file = null;
+        }
+        return file != null;
     }
 }

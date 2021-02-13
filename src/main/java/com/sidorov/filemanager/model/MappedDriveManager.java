@@ -62,6 +62,7 @@ public class MappedDriveManager {
 
     public void addGoogleDrive() {
         DriveEntity drive = GoogleDriveManager.getDriveEntity();
+        GDriveName = drive.getName();
         cloudDrives.put(drive.getName(), drive);
     }
 

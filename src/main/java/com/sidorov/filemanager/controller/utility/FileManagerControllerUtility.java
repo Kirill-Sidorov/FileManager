@@ -5,6 +5,7 @@ import com.sidorov.filemanager.model.entity.Status;
 import com.sidorov.filemanager.model.entity.DriveEntity;
 import com.sidorov.filemanager.model.entity.FileEntity;
 import com.sidorov.filemanager.model.entity.StatusEntity;
+import javafx.application.Platform;
 import javafx.scene.control.ButtonType;
 
 public class FileManagerControllerUtility {
@@ -29,7 +30,7 @@ public class FileManagerControllerUtility {
         }
 
         if (status.getStatus() != Status.OK) {
-            AlertUtility.showErrorAlert(status.getStatus().getMessage(), ButtonType.OK);
+            Platform.runLater(() -> AlertUtility.showErrorAlert(status.getStatus().getMessage(), ButtonType.OK));
         }
         return isNeedUpdateTable;
     }

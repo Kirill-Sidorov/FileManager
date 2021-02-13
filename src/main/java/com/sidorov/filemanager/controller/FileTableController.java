@@ -1,8 +1,8 @@
 package com.sidorov.filemanager.controller;
 
 import com.sidorov.filemanager.controller.service.ItemClickService;
+import com.sidorov.filemanager.controller.service.PreviousDirectoryClickService;
 import com.sidorov.filemanager.controller.service.TableUpdateService;
-import com.sidorov.filemanager.controller.utility.FileManagerControllerUtility;
 import com.sidorov.filemanager.model.MappedDriveManager;
 import com.sidorov.filemanager.model.entity.DriveEntity;
 import com.sidorov.filemanager.model.entity.FileEntity;
@@ -46,6 +46,7 @@ public class FileTableController implements Initializable {
 
     private TableUpdateService tableUpdateService;
     private ItemClickService itemClickService;
+    private PreviousDirectoryClickService previousDirectoryClickService;
     private DriveEntity currentDrive;
     private String format;
 
@@ -73,16 +74,17 @@ public class FileTableController implements Initializable {
     public void clickDiskComboBox(MouseEvent mouseEvent) { refreshComboBox(); }
 
     public void clickGoPreviousDirectoryButton(ActionEvent actionEvent) {
-        boolean isNeedUpdateTable = FileManagerControllerUtility.goPreviousDirectory(currentDrive);
-        if (isNeedUpdateTable) {
-            updateTable();
+        if (!previousDirectoryClickService.isRunning()) {
+            previousDirectoryClickService.reset();
+            previousDirectoryClickService.setDrive(currentDrive);
+            previousDirectoryClickService.start();
         }
     }
 
     public void clickOnItemTableView(MouseEvent mouseEvent) {
         if (mouseEvent.getClickCount() == 2) {
             FileEntity fileEntity = fileTableView.getSelectionModel().getSelectedItem();
-            if (fileEntity != null && currentDrive != null) {
+            if (fileEntity != null && currentDrive != null && !itemClickService.isRunning()) {
                 itemClickService.reset();
                 itemClickService.setDrive(fileEntity, currentDrive);
                 itemClickService.start();
@@ -93,9 +95,11 @@ public class FileTableController implements Initializable {
     public void updateTable() {
         pathTextField.setText(currentDrive.getCurrentPath());
         fileTableView.getItems().clear();
-        tableUpdateService.reset();
-        tableUpdateService.setDrive(currentDrive);
-        tableUpdateService.start();
+        if (!tableUpdateService.isRunning()) {
+            tableUpdateService.reset();
+            tableUpdateService.setDrive(currentDrive);
+            tableUpdateService.start();
+        }
     }
 
     public List<File> getSelectedFiles() {
@@ -118,6 +122,13 @@ public class FileTableController implements Initializable {
         itemClickService = new ItemClickService();
         itemClickService.setOnSucceeded(event -> {
             if (itemClickService.getValue()) {
+                updateTable();
+            }
+        });
+
+        previousDirectoryClickService = new PreviousDirectoryClickService();
+        previousDirectoryClickService.setOnSucceeded(event -> {
+            if (previousDirectoryClickService.getValue()) {
                 updateTable();
             }
         });
