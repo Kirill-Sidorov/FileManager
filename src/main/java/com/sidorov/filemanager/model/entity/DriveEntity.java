@@ -8,6 +8,7 @@ import java.util.Objects;
 public class DriveEntity {
     private String name;
     private String currentPath;
+    private String humanReadablePath;
     private Drive drive;
     private DriveDataManageable dataManager;
 
@@ -15,12 +16,14 @@ public class DriveEntity {
         this.name = name;
         this.drive = drive;
         this.currentPath = name;
+        this.humanReadablePath = name;
     }
 
-    public DriveEntity(String name, String currentPath, Drive drive) {
+    public DriveEntity(String name, String currentPath, String humanReadablePath, Drive drive) {
         this.name = name;
         this.drive = drive;
         this.currentPath = currentPath;
+        this.humanReadablePath = humanReadablePath;
     }
 
     @Override
@@ -36,7 +39,7 @@ public class DriveEntity {
         return Objects.hash(name);
     }
 
-    public DriveEntity clone() { return new DriveEntity(name, currentPath, drive); }
+    public DriveEntity clone() { return new DriveEntity(name, currentPath, humanReadablePath, drive); }
 
     public DriveDataGettable getDataGetter() { return drive.getDataGetter(); }
     public DriveDataManageable getDataManager() {
@@ -49,6 +52,10 @@ public class DriveEntity {
 
     public String getName() { return name; }
     public String getCurrentPath() { return currentPath; }
+    public String getHumanReadablePath() { return humanReadablePath; }
 
-    public void setCurrentPath(String currentPath) { this.currentPath = currentPath; }
+    public void setPaths(String currentPath, String humanReadablePath) {
+        this.currentPath = currentPath;
+        this.humanReadablePath = humanReadablePath;
+    }
 }

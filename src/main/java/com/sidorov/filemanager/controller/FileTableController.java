@@ -93,7 +93,7 @@ public class FileTableController implements Initializable {
     }
 
     public void updateTable() {
-        pathTextField.setText(currentDrive.getCurrentPath());
+        pathTextField.setText(currentDrive.getHumanReadablePath());
         fileTableView.getItems().clear();
         if (!tableUpdateService.isRunning()) {
             tableUpdateService.reset();

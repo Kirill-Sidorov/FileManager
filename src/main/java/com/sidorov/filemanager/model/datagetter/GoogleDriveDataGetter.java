@@ -1,7 +1,6 @@
 package com.sidorov.filemanager.model.datagetter;
 
 import com.google.api.services.drive.model.File;
-import com.sidorov.filemanager.cloud.googledrive.GoogleDriveHolder;
 import com.sidorov.filemanager.cloud.googledrive.GoogleDriveManager;
 import com.sidorov.filemanager.model.entity.DriveSizeInfo;
 import com.sidorov.filemanager.model.entity.FileEntity;

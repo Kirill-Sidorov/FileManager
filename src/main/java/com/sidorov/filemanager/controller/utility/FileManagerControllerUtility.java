@@ -16,12 +16,10 @@ public class FileManagerControllerUtility {
         boolean isNeedUpdateTable = false;
         StatusEntity status;
         if (file.isDirectory()) {
-            if (FileManager.isDirectoryExist(file, drive)) {
-                drive.setCurrentPath(file.getId());
-                status = new StatusEntity(Status.OK);
+            status = FileManager.getNextDirectory(file, drive);
+            if (status.getStatus() == Status.OK) {
                 isNeedUpdateTable = true;
-            } else {
-                status = new StatusEntity(Status.FILE_NOT_FOUND_ERROR);
+                drive.setPaths(status.getPathId(), status.getPathHumanReadable());
             }
         } else if (drive.isCloudDrive()) {
             status = new StatusEntity(Status.OK);
@@ -36,14 +34,14 @@ public class FileManagerControllerUtility {
     }
 
     public static boolean goPreviousDirectory(DriveEntity drive) {
-        StatusEntity status = FileManager.goPreviousDirectory(drive);
+        boolean isNeedUpdateTable = false;
+        StatusEntity status = FileManager.getPreviousDirectory(drive);
         if (status.getStatus() == Status.OK) {
-            drive.setCurrentPath(status.getFileId());
-            return true;
+            isNeedUpdateTable = true;
+            drive.setPaths(status.getPathId(), status.getPathHumanReadable());
+        } else {
+            Platform.runLater(() -> AlertUtility.showErrorAlert(status.getStatus().getMessage(), ButtonType.OK));
         }
-        return false;
+        return isNeedUpdateTable;
     }
-
-
-
 }

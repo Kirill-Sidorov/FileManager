@@ -2,7 +2,6 @@ package com.sidorov.filemanager.controller.service;
 
 import com.sidorov.filemanager.controller.utility.FileManagerControllerUtility;
 import com.sidorov.filemanager.model.entity.DriveEntity;
-import com.sidorov.filemanager.model.entity.FileEntity;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 

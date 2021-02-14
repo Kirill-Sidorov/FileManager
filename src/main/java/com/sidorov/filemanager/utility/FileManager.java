@@ -1,19 +1,12 @@
 package com.sidorov.filemanager.utility;
 
-import com.sidorov.filemanager.model.entity.DriveEntity;
-import com.sidorov.filemanager.model.entity.FileEntity;
-import com.sidorov.filemanager.model.entity.Status;
-import com.sidorov.filemanager.model.entity.StatusEntity;
+import com.sidorov.filemanager.model.entity.*;
 
 import java.io.IOException;
 
 public final class FileManager {
 
     private FileManager() {}
-
-    public static boolean isDirectoryExist(final FileEntity file, final DriveEntity drive) {
-        return drive.getDataManager().isFileExist(file.getId());
-    }
 
     public static StatusEntity executeFile(final FileEntity file, final DriveEntity drive) {
         StatusEntity status = new StatusEntity(Status.OK);
@@ -29,8 +22,13 @@ public final class FileManager {
         return status;
     }
 
-    public static StatusEntity goPreviousDirectory(final DriveEntity drive) {
-        String path = drive.getDataManager().getParentDirectory(drive.getCurrentPath());
-        return (path.length() != 0) ? new StatusEntity(path) : new StatusEntity(Status.FILE_NOT_FOUND_ERROR);
+    public static StatusEntity getNextDirectory(final FileEntity file, final DriveEntity drive) {
+        PathEntity pathEntity = drive.getDataManager().getNextDirectory(file.getId(), drive.getHumanReadablePath());
+        return (pathEntity != null) ? new StatusEntity(pathEntity) : new StatusEntity(Status.FILE_NOT_FOUND_ERROR);
+    }
+
+    public static StatusEntity getPreviousDirectory(final DriveEntity drive) {
+        PathEntity pathEntity = drive.getDataManager().getPreviousDirectory(drive.getCurrentPath(), drive.getHumanReadablePath());
+        return (pathEntity != null) ? new StatusEntity(pathEntity) : new StatusEntity(Status.FILE_NOT_FOUND_ERROR);
     }
 }
