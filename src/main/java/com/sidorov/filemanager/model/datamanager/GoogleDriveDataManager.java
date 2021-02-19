@@ -2,15 +2,14 @@ package com.sidorov.filemanager.model.datamanager;
 
 import com.sidorov.filemanager.cloud.googledrive.GoogleDriveManager;
 import com.sidorov.filemanager.model.entity.PathEntity;
-
-import java.io.IOException;
+import com.sidorov.filemanager.model.entity.Status;
 
 public class GoogleDriveDataManager implements DriveDataManageable {
     @Override
     public boolean isFileExist(String id) { return GoogleDriveManager.isFileExist(id); }
 
     @Override
-    public void executeFile(String id) throws IOException { }
+    public Status executeFile(String id) { return Status.NEED_DOWNLOAD_FILE; }
 
     @Override
     public PathEntity getNextDirectory(String id, String readablePath) {

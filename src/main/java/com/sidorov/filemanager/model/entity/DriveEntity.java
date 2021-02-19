@@ -48,7 +48,6 @@ public class DriveEntity {
         }
         return dataManager;
     }
-    public boolean isCloudDrive() { return drive.isCloudDrive(); }
 
     public String getName() { return name; }
     public String getCurrentPath() { return currentPath; }

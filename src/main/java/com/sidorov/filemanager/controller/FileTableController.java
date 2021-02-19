@@ -3,10 +3,9 @@ package com.sidorov.filemanager.controller;
 import com.sidorov.filemanager.controller.service.ItemClickService;
 import com.sidorov.filemanager.controller.service.PreviousDirectoryClickService;
 import com.sidorov.filemanager.controller.service.TableUpdateService;
+import com.sidorov.filemanager.controller.utility.AlertUtility;
 import com.sidorov.filemanager.model.MappedDriveManager;
-import com.sidorov.filemanager.model.entity.DriveEntity;
-import com.sidorov.filemanager.model.entity.FileEntity;
-import com.sidorov.filemanager.model.entity.TableData;
+import com.sidorov.filemanager.model.entity.*;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
@@ -44,15 +43,21 @@ public class FileTableController implements Initializable {
     @FXML
     private TableView<FileEntity> fileTableView;
 
+    @FXML
+    private Button previousDirectoryButton;
+
     private TableUpdateService tableUpdateService;
     private ItemClickService itemClickService;
     private PreviousDirectoryClickService previousDirectoryClickService;
     private DriveEntity currentDrive;
+    private int numberOpenDirectories;
     private String format;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        numberOpenDirectories = 0;
         format = resources.getString("string.format.file_size");
+        previousDirectoryButton.setDisable(true);
         initializeServices();
         initializeTable(resources);
         initializeComboBox();
@@ -73,8 +78,8 @@ public class FileTableController implements Initializable {
 
     public void clickDiskComboBox(MouseEvent mouseEvent) { refreshComboBox(); }
 
-    public void clickGoPreviousDirectoryButton(ActionEvent actionEvent) {
-        if (!previousDirectoryClickService.isRunning()) {
+    public void clickPreviousDirectoryButton(ActionEvent actionEvent) {
+        if (numberOpenDirectories != 0 && !previousDirectoryClickService.isRunning()) {
             previousDirectoryClickService.reset();
             previousDirectoryClickService.setDrive(currentDrive);
             previousDirectoryClickService.start();
@@ -86,7 +91,7 @@ public class FileTableController implements Initializable {
             FileEntity fileEntity = fileTableView.getSelectionModel().getSelectedItem();
             if (fileEntity != null && currentDrive != null && !itemClickService.isRunning()) {
                 itemClickService.reset();
-                itemClickService.setDrive(fileEntity, currentDrive);
+                itemClickService.setData(fileEntity, currentDrive);
                 itemClickService.start();
             }
         }
@@ -96,6 +101,7 @@ public class FileTableController implements Initializable {
         pathTextField.setText(currentDrive.getHumanReadablePath());
         fileTableView.getItems().clear();
         if (!tableUpdateService.isRunning()) {
+            previousDirectoryButton.setDisable(true);
             tableUpdateService.reset();
             tableUpdateService.setDrive(currentDrive);
             tableUpdateService.start();
@@ -117,19 +123,32 @@ public class FileTableController implements Initializable {
             fileTableView.getItems().addAll(tableData.getFiles());
             driveTotalSpaceLabel.setText(String.format(format, tableData.getTotalSpace()));
             driveUnallocatedSpaceLabel.setText(String.format(format, tableData.getUnallocatedSpace()));
+            if (numberOpenDirectories != 0) { previousDirectoryButton.setDisable(false);}
         }));
 
         itemClickService = new ItemClickService();
         itemClickService.setOnSucceeded(event -> {
-            if (itemClickService.getValue()) {
+            ExecutionResult result = itemClickService.getValue();
+            if (result.getStatus() == Status.NEED_UPDATE_TABLE) {
+                numberOpenDirectories++;
+                currentDrive.setPaths(result.getPathId(), result.getPathHumanReadable());
                 updateTable();
+            } else if (result.getStatus() == Status.NEED_DOWNLOAD_FILE) {
+                AlertUtility.showErrorAlert("", ButtonType.OK);
+            } else if (result.getStatus() == Status.ERROR) {
+                AlertUtility.showErrorAlert(result.getError().getMessage(), ButtonType.OK);
             }
         });
 
         previousDirectoryClickService = new PreviousDirectoryClickService();
         previousDirectoryClickService.setOnSucceeded(event -> {
-            if (previousDirectoryClickService.getValue()) {
+            ExecutionResult result = previousDirectoryClickService.getValue();
+            if (result.getStatus() == Status.NEED_UPDATE_TABLE) {
+                numberOpenDirectories--;
+                currentDrive.setPaths(result.getPathId(), result.getPathHumanReadable());
                 updateTable();
+            } else if (result.getStatus() == Status.ERROR) {
+                AlertUtility.showErrorAlert(result.getError().getMessage(), ButtonType.OK);
             }
         });
     }

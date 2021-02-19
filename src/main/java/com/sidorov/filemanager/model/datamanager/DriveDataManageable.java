@@ -1,11 +1,11 @@
 package com.sidorov.filemanager.model.datamanager;
-import com.sidorov.filemanager.model.entity.PathEntity;
 
-import java.io.IOException;
+import com.sidorov.filemanager.model.entity.PathEntity;
+import com.sidorov.filemanager.model.entity.Status;
 
 public interface DriveDataManageable {
     boolean isFileExist(final String id);
-    void executeFile(final String id) throws IOException;
+    Status executeFile(final String id);
     PathEntity getNextDirectory(final String id, final String readablePath);
     PathEntity getPreviousDirectory(final String id, final String readablePath);
 }

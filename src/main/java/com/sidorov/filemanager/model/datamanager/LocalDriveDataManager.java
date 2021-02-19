@@ -1,6 +1,7 @@
 package com.sidorov.filemanager.model.datamanager;
 
 import com.sidorov.filemanager.model.entity.PathEntity;
+import com.sidorov.filemanager.model.entity.Status;
 import com.sidorov.filemanager.utility.LocalDriveManager;
 
 import java.io.IOException;
@@ -12,7 +13,15 @@ public class LocalDriveDataManager implements DriveDataManageable {
     public boolean isFileExist(String id) { return LocalDriveManager.isFileExist(Paths.get(id)); }
 
     @Override
-    public void executeFile(String id) throws IOException { LocalDriveManager.executeFile(Paths.get(id)); }
+    public Status executeFile(String id) {
+        Status status = Status.OK;
+        try {
+            LocalDriveManager.executeFile(Paths.get(id));
+        } catch (IOException e) {
+            status = Status.ERROR;
+        }
+        return status;
+    }
 
     @Override
     public PathEntity getNextDirectory(String id, String readablePath) {

@@ -15,8 +15,8 @@
         <Label fx:id="driveUnallocatedSpaceLabel" styleClass="label-file-system-info" />
     </HBox>
     <HBox>
-        <Button onAction="#clickGoPreviousDirectoryButton" styleClass="button-previous" />
-        <TextField fx:id="pathTextField" editable="false" HBox.hgrow="ALWAYS" />
+        <Button fx:id="previousDirectoryButton" onAction="#clickPreviousDirectoryButton" styleClass="button-previous" />
+        <TextField fx:id="pathTextField" editable="false" focusTraversable="false" HBox.hgrow="ALWAYS" />
         <Button onAction="#clickRefreshButton" styleClass="button-refresh" />
     </HBox>
     <TableView fx:id="fileTableView" onMouseClicked="#clickOnItemTableView" VBox.vgrow="ALWAYS" />

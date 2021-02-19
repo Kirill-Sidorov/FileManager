@@ -16,9 +16,6 @@ public enum Drive {
 
         @Override
         public DriveDataManageable getDataManager() { return new LocalDriveDataManager(); }
-
-        @Override
-        public boolean isCloudDrive() { return false; }
     },
     GOOGLE {
         @Override
@@ -26,9 +23,6 @@ public enum Drive {
 
         @Override
         public DriveDataManageable getDataManager() { return new GoogleDriveDataManager(); }
-
-        @Override
-        public boolean isCloudDrive() { return true; }
     },
     DROPBOX {
         @Override
@@ -38,13 +32,8 @@ public enum Drive {
 
         @Override
         public DriveDataManageable getDataManager() { return null; }
-
-        @Override
-        public boolean isCloudDrive() { return true; }
     };
 
     public abstract DriveDataGettable getDataGetter();
     public abstract DriveDataManageable getDataManager();
-    // Возможно убрать?
-    public abstract boolean isCloudDrive();
 }

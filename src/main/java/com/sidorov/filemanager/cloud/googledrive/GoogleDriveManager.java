@@ -7,7 +7,9 @@ import com.google.api.services.drive.model.FileList;
 import com.sidorov.filemanager.model.entity.*;
 import com.sidorov.filemanager.utility.BundleHolder;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -101,6 +103,13 @@ public final class GoogleDriveManager {
             parentId = null;
         }
         return parentId;
+    }
+
+    public static void uploadFile(final String id) throws IOException {
+        if (GoogleDriveHolder.isConnectedDrive()) {
+            OutputStream outputStream = new ByteArrayOutputStream();
+            GoogleDriveHolder.getDrive().files().get(id).executeMediaAndDownloadTo(outputStream);
+        }
     }
 
     public static String getNextDirectoryName(final String id) {
