@@ -1,27 +1,29 @@
 package com.sidorov.filemanager.model.entity;
 
+import com.sidorov.filemanager.controller.task.DownloadTask;
 import com.sidorov.filemanager.model.datagetter.DriveDataGettable;
 import com.sidorov.filemanager.model.datamanager.DriveDataManageable;
 
+import java.util.List;
 import java.util.Objects;
 
 public class DriveEntity {
     private String name;
     private String currentPath;
     private String humanReadablePath;
-    private Drive drive;
+    private DriveType driveType;
     private DriveDataManageable dataManager;
 
-    public DriveEntity(String name, Drive drive) {
+    public DriveEntity(String name, DriveType driveType) {
         this.name = name;
-        this.drive = drive;
+        this.driveType = driveType;
         this.currentPath = name;
         this.humanReadablePath = name;
     }
 
-    public DriveEntity(String name, String currentPath, String humanReadablePath, Drive drive) {
+    public DriveEntity(String name, String currentPath, String humanReadablePath, DriveType driveType) {
         this.name = name;
-        this.drive = drive;
+        this.driveType = driveType;
         this.currentPath = currentPath;
         this.humanReadablePath = humanReadablePath;
     }
@@ -39,15 +41,16 @@ public class DriveEntity {
         return Objects.hash(name);
     }
 
-    public DriveEntity clone() { return new DriveEntity(name, currentPath, humanReadablePath, drive); }
+    public DriveEntity clone() { return new DriveEntity(name, currentPath, humanReadablePath, driveType); }
 
-    public DriveDataGettable getDataGetter() { return drive.getDataGetter(); }
+    public DriveDataGettable getDataGetter() { return driveType.getDataGetter(); }
     public DriveDataManageable getDataManager() {
         if (dataManager == null) {
-            dataManager = drive.getDataManager();
+            dataManager = driveType.getDataManager();
         }
         return dataManager;
     }
+    public DownloadTask getDownloadTask(List<FileEntity> files) { return driveType.getDownloadTask(files); }
 
     public String getName() { return name; }
     public String getCurrentPath() { return currentPath; }

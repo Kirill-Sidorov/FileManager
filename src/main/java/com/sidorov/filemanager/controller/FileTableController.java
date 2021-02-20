@@ -4,6 +4,7 @@ import com.sidorov.filemanager.controller.service.ItemClickService;
 import com.sidorov.filemanager.controller.service.PreviousDirectoryClickService;
 import com.sidorov.filemanager.controller.service.TableUpdateService;
 import com.sidorov.filemanager.controller.utility.AlertUtility;
+import com.sidorov.filemanager.controller.utility.DownloadUtility;
 import com.sidorov.filemanager.model.MappedDriveManager;
 import com.sidorov.filemanager.model.entity.*;
 import javafx.application.Platform;
@@ -20,6 +21,7 @@ import java.net.URL;
 import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
@@ -134,7 +136,10 @@ public class FileTableController implements Initializable {
                 currentDrive.setPaths(result.getPathId(), result.getPathHumanReadable());
                 updateTable();
             } else if (result.getStatus() == Status.NEED_DOWNLOAD_FILE) {
-                AlertUtility.showErrorAlert("", ButtonType.OK);
+                FileEntity fileEntity = fileTableView.getSelectionModel().getSelectedItem();
+                if (fileEntity != null && currentDrive != null) {
+                    DownloadUtility.downloadFile(Arrays.asList(fileEntity), currentDrive);
+                }
             } else if (result.getStatus() == Status.ERROR) {
                 AlertUtility.showErrorAlert(result.getError().getMessage(), ButtonType.OK);
             }

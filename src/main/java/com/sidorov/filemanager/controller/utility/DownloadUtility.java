@@ -1,55 +1,42 @@
 package com.sidorov.filemanager.controller.utility;
 
-import com.sidorov.filemanager.cloud.googledrive.GoogleDriveManager;
+import com.sidorov.filemanager.controller.task.DownloadTask;
+import com.sidorov.filemanager.model.entity.*;
 import com.sidorov.filemanager.model.entity.Error;
-import com.sidorov.filemanager.model.entity.ExecutionResult;
-import com.sidorov.filemanager.model.entity.Status;
-import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.ProgressBar;
+
+import java.util.List;
 
 
 public final class DownloadUtility {
 
     private DownloadUtility() {}
 
-    public Status downloadGoogleDriveFile(String id) {
-        /*
-        ExecutionResult executionResult;
-        try {
-            GoogleDriveManager.uploadFile(fileId);
-            executionResult = new ExecutionResult();
-        } catch (IOException e) {
-            executionResult = new ExecutionResult(Error.FILE_NOT_UPLOAD_ERROR);
+    // download and run?
+    public static void downloadFile(final List<FileEntity> files, final DriveEntity drive) {
+        if (ConfirmationUtility.showDownloadConfirmation() == ButtonType.OK) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            ProgressBar progressBar = new ProgressBar();
+            alert.getDialogPane().setExpandableContent(progressBar);
+
+            DownloadTask task = drive.getDownloadTask(files);
+            progressBar.progressProperty().bind(task.progressProperty());
+            alert.contentTextProperty().bind(task.messageProperty());
+
+            task.setOnSucceeded(event -> {
+                Error error = task.getValue();
+                if (error == Error.NO) {
+                    alert.close();
+                } else {
+                    alert.setContentText(error.getMessage());
+                }
+            });
+
+            alert.show();
+
+            new Thread(task).start();
         }
-*/
-
-        Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION, "Download", ButtonType.CANCEL);
-            alert.getDialogPane().setContent(new ProgressIndicator());
-            alert.showAndWait();
-        });
-
-        //Task<StatusEntity> downloadTask = new DownloadFileTask(id);
-        //System.out.println("download");
-        //
-        //progressBar.progressProperty().bind(downloadTask.progressProperty());
-        //alert.getDialogPane().setContent(progressBar);
-/*
-        downloadTask.setOnSucceeded(event -> {
-            StatusEntity status = downloadTask.getValue();
-            if (status.getStatus() != Status.OK) {
-                alert.setContentText(status.getStatus().getMessage());
-            } else {
-                alert.close();
-            }
-        });
-
- */
-
-
-        //new Thread(downloadTask).start();
-        return Status.OK;
     }
 }

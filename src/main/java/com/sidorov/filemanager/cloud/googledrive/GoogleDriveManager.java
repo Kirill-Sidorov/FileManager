@@ -1,6 +1,8 @@
 package com.sidorov.filemanager.cloud.googledrive;
 
 
+import com.google.api.client.googleapis.media.MediaHttpDownloaderProgressListener;
+import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.About;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
@@ -8,6 +10,7 @@ import com.sidorov.filemanager.model.entity.*;
 import com.sidorov.filemanager.utility.BundleHolder;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.time.Instant;
@@ -51,7 +54,7 @@ public final class GoogleDriveManager {
                 rootId = "";
                 humanReadablePath = "";
             }
-            return new DriveEntity(name, rootId, humanReadablePath, Drive.GOOGLE);
+            return new DriveEntity(name, rootId, humanReadablePath, DriveType.GOOGLE);
         }
         return null;
     }
@@ -105,11 +108,12 @@ public final class GoogleDriveManager {
         return parentId;
     }
 
-    public static void uploadFile(final String id) throws IOException {
-        if (GoogleDriveHolder.isConnectedDrive()) {
-            OutputStream outputStream = new ByteArrayOutputStream();
-            GoogleDriveHolder.getDrive().files().get(id).executeMediaAndDownloadTo(outputStream);
-        }
+    public static void uploadFile(final String id, final MediaHttpDownloaderProgressListener listener) throws IOException {
+        FileOutputStream outputStream = new FileOutputStream("newFile2");
+        Drive.Files.Get request = GoogleDriveHolder.getDrive().files().get(id);
+        request.getMediaHttpDownloader().setProgressListener(listener);
+        request.executeMediaAndDownloadTo(outputStream);
+        outputStream.close();
     }
 
     public static String getNextDirectoryName(final String id) {

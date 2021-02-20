@@ -65,7 +65,7 @@ public final class LocalDriveManager {
     */
 
     public static DriveEntity getDriveEntityByName(String name) {
-        return new DriveEntity(name, Drive.LOCAL);
+        return new DriveEntity(name, DriveType.LOCAL);
     }
 
     public static Set<String> getRootDirectories() {
