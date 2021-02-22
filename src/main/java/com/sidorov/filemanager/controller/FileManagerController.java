@@ -1,17 +1,17 @@
 package com.sidorov.filemanager.controller;
 
 import com.sidorov.filemanager.cloud.CloudConnector;
-import com.sidorov.filemanager.cloud.googledrive.GDriveAuthorizationUtility;
+import com.sidorov.filemanager.cloud.CloudDriveType;
 import com.sidorov.filemanager.controller.utility.AlertUtility;
 import com.sidorov.filemanager.controller.utility.InformationUtility;
 import com.sidorov.filemanager.model.MappedDriveManager;
-import com.sidorov.filemanager.model.entity.DriveType;
 import com.sidorov.filemanager.model.entity.Error;
 import com.sidorov.filemanager.utility.BundleHolder;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 
 import java.io.File;
@@ -29,9 +29,18 @@ public class FileManagerController implements Initializable {
     private FileTableController leftFileTableController;
 
     @FXML
+    private Menu googleDriveMenu;
+    @FXML
     private MenuItem addGoogleDriveMenuItem;
     @FXML
     private MenuItem removeGoogleDriveMenuItem;
+
+    @FXML
+    private Menu dropboxDriveMenu;
+    @FXML
+    private MenuItem addDropboxMenuItem;
+    @FXML
+    private MenuItem removeDropboxMenuItem;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -44,36 +53,36 @@ public class FileManagerController implements Initializable {
         thread.start();
     }
 
-    private void initializeCloudDrives(Map<DriveType, Error> drivesErrors) {
+    private void initializeCloudDrives(Map<CloudDriveType, Error> drivesErrors) {
         StringBuilder errors = new StringBuilder();
-        for (DriveType driveType : drivesErrors.keySet()) {
-            switch (driveType) {
-                case GOOGLE:
-                    if (drivesErrors.get(driveType) == Error.NO) {
-                        setGoogleDriveMenuItems(true);
-                        MappedDriveManager.getInstance().addGoogleDrive();
-                    } else {
-                        setGoogleDriveMenuItems(false);
-                        errors.append(String.format(BundleHolder.getBundle().getString("string.format.error.drives_connection"),
-                                driveType.toString(),
-                                drivesErrors.get(driveType).getMessage()));
-                    }
-                    break;
+        for (CloudDriveType cloudDrive : drivesErrors.keySet()) {
+            if (drivesErrors.get(cloudDrive) == Error.NO) {
+                setCloudDriveMenuItems(cloudDrive, true);
+                cloudDrive.addToMappedDrives();
+            } else {
+                setCloudDriveMenuItems(cloudDrive, false);
+                errors.append(String.format(BundleHolder.getBundle().getString("string.format.error.drives_connection"),
+                        cloudDrive.getName(),
+                        drivesErrors.get(cloudDrive).getMessage()));
             }
         }
-        setGoogleDriveMenuItems(false);
         if (errors.length() != 0) {
             AlertUtility.showErrorWithTextArea(errors.toString());
         }
+        googleDriveMenu.setDisable(false);
+        dropboxDriveMenu.setDisable(false);
     }
 
-    private void setGoogleDriveMenuItems(boolean isDriveConnect) {
-        if (isDriveConnect) {
-            addGoogleDriveMenuItem.setDisable(true);
-            removeGoogleDriveMenuItem.setDisable(false);
-        } else {
-            addGoogleDriveMenuItem.setDisable(false);
-            removeGoogleDriveMenuItem.setDisable(true);
+    private void setCloudDriveMenuItems(CloudDriveType cloudDrive, boolean isDriveConnect) {
+        switch (cloudDrive) {
+            case GOOGLE:
+                addGoogleDriveMenuItem.setDisable(isDriveConnect);
+                removeGoogleDriveMenuItem.setDisable(!isDriveConnect);
+                break;
+            case DROPBOX:
+                addDropboxMenuItem.setDisable(isDriveConnect);
+                removeDropboxMenuItem.setDisable(isDriveConnect);
+                break;
         }
     }
 
@@ -119,21 +128,21 @@ public class FileManagerController implements Initializable {
     }
 
     public void addGoogleDriveMenuItem(ActionEvent actionEvent) {
-        setGoogleDriveMenuItems(true);
         Task<Error> task = new Task<Error>() {
             @Override
             protected Error call() throws Exception {
-                return GDriveAuthorizationUtility.createDrive();
+                return CloudDriveType.GOOGLE.createDrive();
             }
         };
         task.setOnSucceeded(event -> {
             Error error = task.getValue();
             if (error == Error.NO) {
-                setGoogleDriveMenuItems(true);
+                setCloudDriveMenuItems(CloudDriveType.GOOGLE, true);
                 MappedDriveManager.getInstance().addGoogleDrive();
-                InformationUtility.showInformation(BundleHolder.getBundle().getString("message.information.cloud_connected"));
+                InformationUtility.showInformation(String
+                        .format(BundleHolder.getBundle().getString("string.format.message.cloud_drive_connected"), CloudDriveType.GOOGLE.getName()));
             } else {
-                setGoogleDriveMenuItems(false);
+                setCloudDriveMenuItems(CloudDriveType.GOOGLE, false);
                 AlertUtility.showErrorAlert(error.getMessage());
             }
 
@@ -144,7 +153,13 @@ public class FileManagerController implements Initializable {
     }
 
     public void removeGoogleDriveMenuItem(ActionEvent actionEvent) {
-        setGoogleDriveMenuItems(false);
+        setCloudDriveMenuItems(CloudDriveType.GOOGLE,false);
         MappedDriveManager.getInstance().removeGoogleDrive();
+    }
+
+    public void addDropboxMenuItem(ActionEvent actionEvent) {
+    }
+
+    public void removeDropBoxMenuItem(ActionEvent actionEvent) {
     }
 }

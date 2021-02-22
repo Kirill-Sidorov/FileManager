@@ -13,6 +13,7 @@ import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.About;
+import com.sidorov.filemanager.cloud.CloudDriveType;
 import com.sidorov.filemanager.model.entity.Error;
 
 import java.io.FileNotFoundException;
@@ -26,7 +27,6 @@ import java.util.List;
 public final class GDriveAuthorizationUtility {
     private static final String APPLICATION_NAME = "FileManager";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
-    private static final String TOKENS_DIRECTORY_PATH = "tokens";
 
     private static final List<String> SCOPES = Collections.singletonList(DriveScopes.DRIVE);
     private static final String CREDENTIALS_FILE_PATH = "/credential/credentials.json";
@@ -42,7 +42,7 @@ public final class GDriveAuthorizationUtility {
         // Build flow and trigger user authorization request.
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
                 HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
-                .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
+                .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(CloudDriveType.GOOGLE.getTokenDirectoryPath())))
                 .setAccessType("offline")
                 .build();
         LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
@@ -60,6 +60,9 @@ public final class GDriveAuthorizationUtility {
     }
 
     public static Error createDrive() {
+        if (GoogleDriveHolder.isConnectedDrive()) {
+            return Error.NO;
+        }
         Error error;
         try {
             final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();

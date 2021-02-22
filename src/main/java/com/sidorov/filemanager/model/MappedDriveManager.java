@@ -1,5 +1,6 @@
 package com.sidorov.filemanager.model;
 
+import com.sidorov.filemanager.cloud.CloudDriveType;
 import com.sidorov.filemanager.cloud.googledrive.GoogleDriveHolder;
 import com.sidorov.filemanager.cloud.googledrive.GoogleDriveManager;
 import com.sidorov.filemanager.model.entity.DriveEntity;
@@ -35,18 +36,27 @@ public class MappedDriveManager {
     }
 
     public void addGoogleDrive() {
-        DriveEntity drive = GoogleDriveManager.getDriveEntity();
-        GDriveName = drive.getName();
-        cloudDrives.put(drive.getName(), drive);
+        if (GoogleDriveHolder.isConnectedDrive() && GDriveName == null) {
+            DriveEntity drive = GoogleDriveManager.getDriveEntity();
+            GDriveName = drive.getName();
+            cloudDrives.put(drive.getName(), drive);
+        }
     }
 
     public void removeGoogleDrive() {
-        cloudDrives.remove(GDriveName);
-        GoogleDriveHolder.setDrive(null);
-        File directory = new File("tokens");
-        for (File token : directory.listFiles()) {
-            token.delete();
+        if (GDriveName != null) {
+            cloudDrives.remove(GDriveName);
+            GDriveName = null;
+            GoogleDriveHolder.setDrive(null);
+            File directory = new File(CloudDriveType.GOOGLE.getTokenDirectoryPath());
+            for (File token : directory.listFiles()) {
+                token.delete();
+            }
         }
     }
+
+    public void addDropboxDrive() { }
+
+    public void removeDropboxDrive() { }
 
 }
