@@ -15,7 +15,7 @@ public final class DownloadUtility {
     public static void downloadFile(final List<FileEntity> files, final DriveEntity drive) {
         if (ConfirmationUtility.showDownloadConfirmation() == ButtonType.OK) {
             DownloadTask task = drive.getDownloadTask(files);
-            Dialog dialog = DialogUtility.createDownloadDialog(task, drive.getName());
+            Dialog dialog = DialogCreatorUtility.createDownloadDialog(task, drive.getName());
             Thread thread = new Thread(task);
             thread.setDaemon(true);
 

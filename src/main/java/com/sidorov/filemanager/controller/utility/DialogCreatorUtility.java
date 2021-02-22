@@ -9,9 +9,9 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-public final class DialogUtility {
+public final class DialogCreatorUtility {
 
-    private DialogUtility() {}
+    private DialogCreatorUtility() {}
 
     public static Dialog createDownloadDialog(final DownloadTask task, final String driveName) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);

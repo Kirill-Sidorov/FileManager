@@ -1,8 +1,14 @@
 package com.sidorov.filemanager.controller;
 
-import com.sidorov.filemanager.cloud.googledrive.GoogleDriveHolder;
-import com.sidorov.filemanager.controller.task.GoogleDriveAdderTask;
+import com.sidorov.filemanager.cloud.CloudConnector;
+import com.sidorov.filemanager.cloud.googledrive.GDriveAuthorizationUtility;
+import com.sidorov.filemanager.controller.utility.AlertUtility;
+import com.sidorov.filemanager.controller.utility.InformationUtility;
 import com.sidorov.filemanager.model.MappedDriveManager;
+import com.sidorov.filemanager.model.entity.DriveType;
+import com.sidorov.filemanager.model.entity.Error;
+import com.sidorov.filemanager.utility.BundleHolder;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -12,6 +18,7 @@ import java.io.File;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 public class FileManagerController implements Initializable {
@@ -28,10 +35,45 @@ public class FileManagerController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        removeGoogleDriveMenuItem.setDisable(true);
-        if (GoogleDriveHolder.isConnectedDrive()) {
+        CloudConnector connector = new CloudConnector();
+        connector.setOnSucceeded(event -> {
+            initializeCloudDrives(connector.getValue());
+        });
+        Thread thread = new Thread(connector);
+        thread.setDaemon(true);
+        thread.start();
+    }
+
+    private void initializeCloudDrives(Map<DriveType, Error> drivesErrors) {
+        StringBuilder errors = new StringBuilder();
+        for (DriveType driveType : drivesErrors.keySet()) {
+            switch (driveType) {
+                case GOOGLE:
+                    if (drivesErrors.get(driveType) == Error.NO) {
+                        setGoogleDriveMenuItems(true);
+                        MappedDriveManager.getInstance().addGoogleDrive();
+                    } else {
+                        setGoogleDriveMenuItems(false);
+                        errors.append(String.format(BundleHolder.getBundle().getString("string.format.error.drives_connection"),
+                                driveType.toString(),
+                                drivesErrors.get(driveType).getMessage()));
+                    }
+                    break;
+            }
+        }
+        setGoogleDriveMenuItems(false);
+        if (errors.length() != 0) {
+            AlertUtility.showErrorWithTextArea(errors.toString());
+        }
+    }
+
+    private void setGoogleDriveMenuItems(boolean isDriveConnect) {
+        if (isDriveConnect) {
             addGoogleDriveMenuItem.setDisable(true);
             removeGoogleDriveMenuItem.setDisable(false);
+        } else {
+            addGoogleDriveMenuItem.setDisable(false);
+            removeGoogleDriveMenuItem.setDisable(true);
         }
     }
 
@@ -77,17 +119,32 @@ public class FileManagerController implements Initializable {
     }
 
     public void addGoogleDriveMenuItem(ActionEvent actionEvent) {
-        addGoogleDriveMenuItem.setDisable(true);
-        removeGoogleDriveMenuItem.setDisable(false);
-        GoogleDriveAdderTask task = new GoogleDriveAdderTask();
-        //task.setOnSucceeded(event -> { DriveManager.getInstance().addGoogleDrive(); }); вызвать Alert, что диск подлючен
-        //task.setOnFailed(); alert что диск не удалось подключить
-        new Thread(task).start();
+        setGoogleDriveMenuItems(true);
+        Task<Error> task = new Task<Error>() {
+            @Override
+            protected Error call() throws Exception {
+                return GDriveAuthorizationUtility.createDrive();
+            }
+        };
+        task.setOnSucceeded(event -> {
+            Error error = task.getValue();
+            if (error == Error.NO) {
+                setGoogleDriveMenuItems(true);
+                MappedDriveManager.getInstance().addGoogleDrive();
+                InformationUtility.showInformation(BundleHolder.getBundle().getString("message.information.cloud_connected"));
+            } else {
+                setGoogleDriveMenuItems(false);
+                AlertUtility.showErrorAlert(error.getMessage());
+            }
+
+        });
+        Thread thread = new Thread(task);
+        thread.setDaemon(true);
+        thread.start();
     }
 
     public void removeGoogleDriveMenuItem(ActionEvent actionEvent) {
-        removeGoogleDriveMenuItem.setDisable(true);
-        addGoogleDriveMenuItem.setDisable(false);
+        setGoogleDriveMenuItems(false);
         MappedDriveManager.getInstance().removeGoogleDrive();
     }
 }

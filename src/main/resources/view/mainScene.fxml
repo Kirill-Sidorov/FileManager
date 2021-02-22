@@ -6,8 +6,8 @@
 <VBox prefHeight="600.0" prefWidth="1000.0" stylesheets="/style/styles.css" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/javafx" fx:controller="com.sidorov.filemanager.controller.FileManagerController">
     <MenuBar>
         <Menu text="%ui.menu_bar.menu.google_drive">
-            <MenuItem fx:id="addGoogleDriveMenuItem" onAction="#addGoogleDriveMenuItem" text="%ui.menu_bar.menu.menu_item.add_drive" />
-            <MenuItem fx:id="removeGoogleDriveMenuItem" onAction="#removeGoogleDriveMenuItem" text="%ui.menu_bar.menu.menu_item.remove_drive"/>
+            <MenuItem fx:id="addGoogleDriveMenuItem" disable="true" onAction="#addGoogleDriveMenuItem" text="%ui.menu_bar.menu.menu_item.add_drive" />
+            <MenuItem fx:id="removeGoogleDriveMenuItem" disable="true" onAction="#removeGoogleDriveMenuItem" text="%ui.menu_bar.menu.menu_item.remove_drive"/>
         </Menu>
     </MenuBar>
     <HBox VBox.vgrow="ALWAYS">

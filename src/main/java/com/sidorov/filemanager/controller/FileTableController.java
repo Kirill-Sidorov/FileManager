@@ -139,7 +139,7 @@ public class FileTableController implements Initializable {
                     DownloadUtility.downloadFile(Arrays.asList(fileEntity), currentDrive);
                 }
             } else if (result.getStatus() == Status.ERROR) {
-                AlertUtility.showErrorAlert(result.getError().getMessage(), ButtonType.OK);
+                AlertUtility.showErrorAlert(result.getError().getMessage());
             }
         });
 
@@ -151,7 +151,7 @@ public class FileTableController implements Initializable {
                 currentDrive.setPaths(result.getPathId(), result.getPathHumanReadable());
                 updateTable();
             } else if (result.getStatus() == Status.ERROR) {
-                AlertUtility.showErrorAlert(result.getError().getMessage(), ButtonType.OK);
+                AlertUtility.showErrorAlert(result.getError().getMessage());
             }
         });
     }

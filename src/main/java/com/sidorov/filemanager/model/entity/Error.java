@@ -15,14 +15,21 @@ public enum Error {
         @Override
         public String getMessage() { return BundleHolder.getBundle().getString("message.error.failed_to_run_file"); }
     },
-
     FILE_NOT_UPLOAD_ERROR {
         @Override
         public String getMessage() { return BundleHolder.getBundle().getString("message.error.file_not_upload"); }
     },
+    CLOUD_DRIVE_NOT_CONNECTED {
+        @Override
+        public String getMessage() { return BundleHolder.getBundle().getString("message.error.cloud_drive_not_connected"); }
+    },
     CLOUD_DRIVE_DISABLED {
         @Override
         public String getMessage() { return BundleHolder.getBundle().getString("message.error.cloud_drive_disabled"); }
+    },
+    NO_CREDENTIALS {
+        @Override
+        public String getMessage() { return BundleHolder.getBundle().getString("message.error.no_credentials"); }
     };
     public abstract String getMessage();
 }

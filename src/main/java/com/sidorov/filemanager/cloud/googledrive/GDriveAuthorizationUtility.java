@@ -12,6 +12,8 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
+import com.google.api.services.drive.model.About;
+import com.sidorov.filemanager.model.entity.Error;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -47,11 +49,32 @@ public final class GDriveAuthorizationUtility {
         return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
     }
 
-    public static void createDrive() throws IOException, GeneralSecurityException {
-        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-        Drive service = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
-                .setApplicationName(APPLICATION_NAME)
-                .build();
-        GoogleDriveHolder.setDrive(service);
+    private static Error testConnection(final Drive service) {
+        Error error = Error.NO;
+        try {
+            About test = service.about().get().setFields("user").execute();
+        } catch (IOException e) {
+            error = Error.CLOUD_DRIVE_NOT_CONNECTED;
+        }
+        return error;
+    }
+
+    public static Error createDrive() {
+        Error error;
+        try {
+            final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+            Drive service = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
+                    .setApplicationName(APPLICATION_NAME)
+                    .build();
+            error = testConnection(service);
+            if (error == Error.NO) {
+                GoogleDriveHolder.setDrive(service);
+            }
+        } catch (IOException e) {
+            error = Error.NO_CREDENTIALS;
+        } catch (GeneralSecurityException e) {
+            error = Error.CLOUD_DRIVE_NOT_CONNECTED;
+        }
+        return error;
     }
 }
