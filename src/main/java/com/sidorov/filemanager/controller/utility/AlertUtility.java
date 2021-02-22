@@ -10,15 +10,15 @@ public final class AlertUtility {
 
     public static void showErrorAlert(String text, ButtonType buttonType) {
         Alert alert = new Alert(Alert.AlertType.ERROR, text, buttonType);
-        alert.setHeaderText(BundleHolder.getBundle().getString("message.alert.error"));
-        alert.setTitle(BundleHolder.getBundle().getString("message.alert.error"));
+        alert.setHeaderText(text);
+        alert.setTitle(BundleHolder.getBundle().getString("message.title.error"));
         alert.showAndWait();
     }
 
     public static void showWarningAlert(String text, ButtonType buttonType) {
         Alert alert = new Alert(Alert.AlertType.WARNING, text, buttonType);
         alert.setHeaderText(text);
-        alert.setTitle(BundleHolder.getBundle().getString("message.alert.warning"));
+        alert.setTitle(BundleHolder.getBundle().getString("message.title.warning"));
         alert.showAndWait();
     }
 }

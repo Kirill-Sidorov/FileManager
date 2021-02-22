@@ -66,9 +66,7 @@ public class FileTableController implements Initializable {
         updateTable();
     }
 
-    public void clickRefreshButton(ActionEvent actionEvent) {
-        updateTable();
-    }
+    public void clickRefreshButton(ActionEvent actionEvent) { updateTable(); }
 
     public void selectDiskComboBox(ActionEvent actionEvent) {
         String drive = diskComboBox.getSelectionModel().getSelectedItem();

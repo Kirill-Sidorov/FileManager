@@ -1,18 +1,16 @@
 package com.sidorov.filemanager.cloud.googledrive;
 
-
 import com.google.api.client.googleapis.media.MediaHttpDownloaderProgressListener;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.About;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 import com.sidorov.filemanager.model.entity.*;
+import com.sidorov.filemanager.model.entity.Error;
 import com.sidorov.filemanager.utility.BundleHolder;
 
-import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -22,6 +20,7 @@ import java.util.List;
 public final class GoogleDriveManager {
 
     private static final String FOLDER_MIME_TYPE = "application/vnd.google-apps.folder";
+    private static final String DOWNLOAD_DIRECTORY = "C:\\Users\\user\\Downloads\\";
 
     public static DriveSizeInfo getDriveSizeInfo() {
         long totalSpace = 0L;
@@ -108,12 +107,20 @@ public final class GoogleDriveManager {
         return parentId;
     }
 
-    public static void uploadFile(final String id, final MediaHttpDownloaderProgressListener listener) throws IOException {
-        FileOutputStream outputStream = new FileOutputStream("newFile2");
-        Drive.Files.Get request = GoogleDriveHolder.getDrive().files().get(id);
-        request.getMediaHttpDownloader().setProgressListener(listener);
-        request.executeMediaAndDownloadTo(outputStream);
-        outputStream.close();
+    public static Error uploadFile(final FileEntity file, final MediaHttpDownloaderProgressListener listener) {
+        Error error = Error.NO;
+        if (GoogleDriveHolder.isConnectedDrive()) {
+            try (FileOutputStream outputStream = new FileOutputStream(DOWNLOAD_DIRECTORY + file.getName())) {
+                Drive.Files.Get request = GoogleDriveHolder.getDrive().files().get(file.getId());
+                request.getMediaHttpDownloader().setProgressListener(listener);
+                request.executeMediaAndDownloadTo(outputStream);
+            } catch (IOException e) {
+                error = Error.FILE_NOT_UPLOAD_ERROR;
+            }
+        } else {
+            error = Error.CLOUD_DRIVE_DISABLED;
+        }
+        return error;
     }
 
     public static String getNextDirectoryName(final String id) {

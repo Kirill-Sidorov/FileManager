@@ -3,6 +3,7 @@ package com.sidorov.filemanager.model;
 import com.sidorov.filemanager.cloud.googledrive.GDriveAuthorizationUtility;
 import com.sidorov.filemanager.cloud.googledrive.GoogleDriveHolder;
 import com.sidorov.filemanager.cloud.googledrive.GoogleDriveManager;
+import com.sidorov.filemanager.controller.utility.DownloadUtility;
 import com.sidorov.filemanager.model.entity.DriveEntity;
 import com.sidorov.filemanager.utility.LocalDriveManager;
 

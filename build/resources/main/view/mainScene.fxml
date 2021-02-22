@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox prefHeight="600.0" prefWidth="1000.0" stylesheets="/style/styles.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sidorov.filemanager.controller.FileManagerController">
+<VBox prefHeight="600.0" prefWidth="1000.0" stylesheets="/style/styles.css" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/javafx" fx:controller="com.sidorov.filemanager.controller.FileManagerController">
     <MenuBar>
         <Menu text="%ui.menu_bar.menu.google_drive">
             <MenuItem fx:id="addGoogleDriveMenuItem" onAction="#addGoogleDriveMenuItem" text="%ui.menu_bar.menu.menu_item.add_drive" />

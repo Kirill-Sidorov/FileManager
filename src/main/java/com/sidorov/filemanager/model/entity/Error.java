@@ -19,6 +19,10 @@ public enum Error {
     FILE_NOT_UPLOAD_ERROR {
         @Override
         public String getMessage() { return BundleHolder.getBundle().getString("message.error.file_not_upload"); }
+    },
+    CLOUD_DRIVE_DISABLED {
+        @Override
+        public String getMessage() { return BundleHolder.getBundle().getString("message.error.cloud_drive_disabled"); }
     };
     public abstract String getMessage();
 }

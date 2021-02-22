@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sidorov.filemanager.controller.FileTableController">
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/javafx" fx:controller="com.sidorov.filemanager.controller.FileTableController">
     <HBox>
         <ComboBox fx:id="diskComboBox" onAction="#selectDiskComboBox" onMouseClicked="#clickDiskComboBox" />
         <ProgressBar fx:id="tableLoadProgressBar" styleClass="progress-bar-table-load" progress="0.0" maxWidth="Infinity" visible="true" HBox.hgrow="ALWAYS"/>

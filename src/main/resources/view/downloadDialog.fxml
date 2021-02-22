@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox prefHeight="150.0" prefWidth="250.0" stylesheets="/style/styles.css"
+      xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.sidorov.filemanager.controller.dialog.DownloadDialogController">
+    <HBox prefHeight="100">
+        <TextArea fx:id="informationTextArea" editable="false" prefWidth="180" />
+        <ProgressIndicator/>
+    </HBox>
+    <ProgressBar fx:id="fileUploadProgressBar" prefWidth="220" styleClass="progress-bar-download-dialog" />
+</VBox>

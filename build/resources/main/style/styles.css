@@ -13,3 +13,7 @@
 .progress-bar-table-load {
     -fx-padding: 0.5em 0.5em 0.5em 0.5em;
 }
+
+.progress-bar-download-dialog {
+    -fx-padding: 0.5em 0.5em 0.5em 0.5em;
+}
