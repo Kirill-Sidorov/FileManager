@@ -10,7 +10,5 @@ public class GoogleDriveHolder {
 
     public static void setDrive(Drive drive) { googleDrive = drive; }
     public static Drive getDrive() { return googleDrive; }
-    public static boolean isConnectedDrive() {
-        return googleDrive == null ? false : true;
-    }
+    public static boolean isConnectedDrive() { return googleDrive != null; }
 }

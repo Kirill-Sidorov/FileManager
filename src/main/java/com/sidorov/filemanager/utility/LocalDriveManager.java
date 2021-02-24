@@ -1,15 +1,20 @@
 package com.sidorov.filemanager.utility;
 
+import com.sidorov.filemanager.controller.service.ProgressUpdater;
 import com.sidorov.filemanager.model.entity.*;
 import org.apache.commons.io.FilenameUtils;
 
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -18,7 +23,8 @@ public final class LocalDriveManager {
 
     private LocalDriveManager() {}
 
-    public static DriveSizeInfo getFileSystemSizeInfo(Path path) {
+    public static DriveSizeInfo getFileSystemSizeInfo(String stringPath) {
+        Path path = Paths.get(stringPath);
         long totalSpace;
         long unallocatedSpace;
         try {
@@ -31,7 +37,20 @@ public final class LocalDriveManager {
         return new DriveSizeInfo(totalSpace, unallocatedSpace);
     }
 
-    public static FileEntity getFileEntity(Path path) {
+    public static List<FileEntity> getListDirectoryFiles(String dirId, ProgressUpdater updater) {
+        List<FileEntity> files = new ArrayList<>();
+        File dir = new File(dirId);
+        File[] listFiles = dir.listFiles();
+        int workDone = 1;
+        long max = listFiles.length;
+        for (File file : dir.listFiles()) {
+            files.add(getFileEntity(file.toPath()));
+            updater.update(workDone++, max);
+        }
+        return files;
+    }
+
+    private static FileEntity getFileEntity(Path path) {
         String name = null;
         long size = 0L;
         LocalDateTime modifiedDate = null;

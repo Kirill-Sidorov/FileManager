@@ -1,15 +1,12 @@
 package com.sidorov.filemanager.model.datagetter;
 
+import com.sidorov.filemanager.controller.service.ProgressUpdater;
 import com.sidorov.filemanager.model.entity.DriveSizeInfo;
 import com.sidorov.filemanager.model.entity.FileEntity;
 
-import java.io.IOException;
+import java.util.List;
 
 public interface DriveDataGettable {
     DriveSizeInfo getDriveSizeInfo(final String driveName);
-    long getNumberFilesInDirectory(final String id);
-    void setPathToIterableDirectory(final String id);
-    boolean hasNextFile();
-    FileEntity getNextFile();
-    void resetIterator();
+    List<FileEntity> getListDirectoryFiles(final String dirId, ProgressUpdater updater);
 }

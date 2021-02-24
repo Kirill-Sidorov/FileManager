@@ -27,8 +27,13 @@ public class TableUpdateService extends Service<TableData> {
                 List<FileEntity> files = new ArrayList<FileEntity>();
                 String dirPath = drive.getCurrentPath();
                 DriveDataGettable dataGetter = drive.getDataGetter();
-                dataGetter.setPathToIterableDirectory(dirPath);
                 DriveSizeInfo sizeInfo = dataGetter.getDriveSizeInfo(drive.getName());
+                files = dataGetter.getListDirectoryFiles(dirPath, ((workDone, max) -> updateProgress(workDone, max)));
+                updateProgress(0,1);
+                /*
+
+                dataGetter.setPathToIterableDirectory(dirPath);
+
                 final long numberFiles = dataGetter.getNumberFilesInDirectory(dirPath);
                 while(dataGetter.hasNextFile()) {
                     files.add(dataGetter.getNextFile());
@@ -36,6 +41,8 @@ public class TableUpdateService extends Service<TableData> {
                 }
                 updateProgress(files.size(), numberFiles);
                 dataGetter = null;
+
+                 */
                 return new TableData(files, sizeInfo);
             }
         };

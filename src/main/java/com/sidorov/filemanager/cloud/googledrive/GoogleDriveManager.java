@@ -5,6 +5,8 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.About;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
+import com.sidorov.filemanager.cloud.CloudDriveType;
+import com.sidorov.filemanager.controller.service.ProgressUpdater;
 import com.sidorov.filemanager.model.entity.*;
 import com.sidorov.filemanager.model.entity.Error;
 import com.sidorov.filemanager.utility.BundleHolder;
@@ -21,6 +23,8 @@ public final class GoogleDriveManager {
 
     private static final String FOLDER_MIME_TYPE = "application/vnd.google-apps.folder";
     private static final String DOWNLOAD_DIRECTORY = "C:\\Users\\user\\Downloads\\";
+
+    private GoogleDriveManager() {}
 
     public static DriveSizeInfo getDriveSizeInfo() {
         long totalSpace = 0L;
@@ -39,13 +43,13 @@ public final class GoogleDriveManager {
 
     public static DriveEntity getDriveEntity() {
         if (GoogleDriveHolder.isConnectedDrive()) {
-            String name;
+            String name = CloudDriveType.GOOGLE.getName();
             String rootId;
             String humanReadablePath;
             try {
-                About about = GoogleDriveHolder.getDrive().about().get().setFields("user").execute();
+                //About about = GoogleDriveHolder.getDrive().about().get().setFields("user").execute();
                 File file = GoogleDriveHolder.getDrive().files().get("root").setFields("id, name").execute();
-                name = (about.getUser().getEmailAddress() != null) ? about.getUser().getEmailAddress() : "";
+                //name = (about.getUser().getEmailAddress() != null) ? about.getUser().getEmailAddress() : "";
                 rootId = (file.getId() != null) ? file.getId() : "";
                 humanReadablePath = (file.getName() != null) ? file.getName() : "";
             } catch (IOException e) {
@@ -57,7 +61,7 @@ public final class GoogleDriveManager {
         }
         return null;
     }
-
+/*
     public static List<File> getListDirectoryFiles(final String dirId) throws IOException {
         List<File> files = new ArrayList<>();
         if (GoogleDriveHolder.isConnectedDrive()) {
@@ -73,8 +77,29 @@ public final class GoogleDriveManager {
         }
         return files;
     }
+*/
+    public static List<FileEntity> getListDirectoryFiles(final String dirId, ProgressUpdater updater) throws IOException {
+        List<FileEntity> files = new ArrayList<>();
+        if (GoogleDriveHolder.isConnectedDrive()) {
+            String pageToken = null;
+            do {
+                FileList result = GoogleDriveHolder.getDrive().files().list()
+                        .setQ(String.format("'%s' in parents", dirId))
+                        .setFields("nextPageToken, files(id, name, size, modifiedTime, mimeType, fileExtension)")
+                        .execute();
+                int workDone = 1;
+                int max = result.getFiles().size();
+                for (File file : result.getFiles()) {
+                    files.add(getFileEntity(file));
+                    updater.update(workDone++, max);
+                }
+                pageToken = result.getNextPageToken();
+            } while (pageToken != null);
+        }
+        return files;
+    }
 
-    public static FileEntity getFileEntity(final File file) {
+    private static FileEntity getFileEntity(final File file) {
         String id;
         String name;
         long size;

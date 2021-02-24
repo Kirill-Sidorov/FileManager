@@ -16,6 +16,9 @@ public final class DownloadUtility {
         if (ConfirmationUtility.showDownloadConfirmation() == ButtonType.OK) {
             DownloadTask task = drive.getDownloadTask(files);
             Dialog dialog = DialogCreatorUtility.createDownloadDialog(task, drive.getName());
+
+            task.setOnSucceeded(event -> dialog.close());
+
             Thread thread = new Thread(task);
             thread.setDaemon(true);
 
@@ -24,7 +27,6 @@ public final class DownloadUtility {
                 thread.stop();
             });
             dialog.show();
-
             thread.start();
         }
     }

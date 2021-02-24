@@ -37,8 +37,6 @@ public final class DialogCreatorUtility {
         vBox.getChildren().addAll(label, progressBar);
         alert.getDialogPane().setContent(vBox);
 
-        task.setOnSucceeded(event -> alert.close());
-
         return alert;
     }
 }

@@ -2,6 +2,7 @@ package com.sidorov.filemanager.model.datagetter;
 
 import com.google.api.services.drive.model.File;
 import com.sidorov.filemanager.cloud.googledrive.GoogleDriveManager;
+import com.sidorov.filemanager.controller.service.ProgressUpdater;
 import com.sidorov.filemanager.model.entity.DriveSizeInfo;
 import com.sidorov.filemanager.model.entity.FileEntity;
 
@@ -11,40 +12,21 @@ import java.util.List;
 
 public class GoogleDriveDataGetter implements DriveDataGettable {
 
-    private List<File> dirFiles;
-    private Iterator<File> fileIterator;
-
     @Override
-    public DriveSizeInfo getDriveSizeInfo(String id) {
+    public DriveSizeInfo getDriveSizeInfo(String driveName) {
         return GoogleDriveManager.getDriveSizeInfo();
     }
 
     @Override
-    public long getNumberFilesInDirectory(String id) {
-        return dirFiles == null ? 0L : dirFiles.size();
-    }
-
-    @Override
-    public void setPathToIterableDirectory(String id) {
-        resetIterator();
+    public List<FileEntity> getListDirectoryFiles(String dirId, ProgressUpdater updater) {
+        List<FileEntity> list = null;
         try {
-            dirFiles = GoogleDriveManager.getListDirectoryFiles(id);
-            fileIterator = dirFiles.iterator();
+            list = GoogleDriveManager.getListDirectoryFiles(dirId, updater);
         } catch (IOException e) {
-            dirFiles = null;
-            fileIterator = null;
+            list = null;
+        } catch (InterruptedException e) {
+            list = null;
         }
-    }
-
-    @Override
-    public boolean hasNextFile() { return fileIterator == null ? false : fileIterator.hasNext(); }
-
-    @Override
-    public FileEntity getNextFile() { return GoogleDriveManager.getFileEntity(fileIterator.next()); }
-
-    @Override
-    public void resetIterator() {
-        dirFiles = null;
-        fileIterator = null;
+        return list;
     }
 }

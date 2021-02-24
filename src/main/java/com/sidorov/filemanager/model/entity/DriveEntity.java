@@ -12,7 +12,6 @@ public class DriveEntity {
     private String currentPath;
     private String humanReadablePath;
     private DriveType driveType;
-    private DriveDataManageable dataManager;
 
     public DriveEntity(String name, DriveType driveType) {
         this.name = name;
@@ -44,12 +43,7 @@ public class DriveEntity {
     public DriveEntity clone() { return new DriveEntity(name, currentPath, humanReadablePath, driveType); }
 
     public DriveDataGettable getDataGetter() { return driveType.getDataGetter(); }
-    public DriveDataManageable getDataManager() {
-        if (dataManager == null) {
-            dataManager = driveType.getDataManager();
-        }
-        return dataManager;
-    }
+    public DriveDataManageable getDataManager() { return driveType.getDataManager(); }
     public DownloadTask getDownloadTask(List<FileEntity> files) { return driveType.getDownloadTask(files); }
 
     public String getName() { return name; }
