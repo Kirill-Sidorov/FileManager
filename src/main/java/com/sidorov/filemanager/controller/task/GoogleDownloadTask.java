@@ -1,7 +1,7 @@
 package com.sidorov.filemanager.controller.task;
 
-import com.sidorov.filemanager.cloud.googledrive.GoogleDriveManager;
-import com.sidorov.filemanager.model.entity.Error;
+import com.sidorov.filemanager.drive.googledrive.GoogleDriveManager;
+import com.sidorov.filemanager.model.result.Error;
 import com.sidorov.filemanager.model.entity.FileEntity;
 
 import java.util.List;

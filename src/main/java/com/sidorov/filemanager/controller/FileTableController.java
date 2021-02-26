@@ -3,10 +3,14 @@ package com.sidorov.filemanager.controller;
 import com.sidorov.filemanager.controller.service.ItemClickService;
 import com.sidorov.filemanager.controller.service.PreviousDirectoryClickService;
 import com.sidorov.filemanager.controller.service.TableUpdateService;
-import com.sidorov.filemanager.controller.utility.AlertUtility;
+import com.sidorov.filemanager.controller.dialog.AlertDialogUtility;
 import com.sidorov.filemanager.controller.utility.DownloadUtility;
 import com.sidorov.filemanager.model.MappedDriveManager;
 import com.sidorov.filemanager.model.entity.*;
+import com.sidorov.filemanager.model.entity.DriveEntity;
+import com.sidorov.filemanager.model.result.DataResult;
+import com.sidorov.filemanager.model.result.Error;
+import com.sidorov.filemanager.model.result.PathResult;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
@@ -52,12 +56,11 @@ public class FileTableController implements Initializable {
     private ItemClickService itemClickService;
     private PreviousDirectoryClickService previousDirectoryClickService;
     private DriveEntity currentDrive;
-    private int numberOpenDirectories;
+    private String rootDirectory;
     private String format;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        numberOpenDirectories = 0;
         format = resources.getString("string.format.file_size");
         previousDirectoryButton.setDisable(true);
         initializeServices();
@@ -72,6 +75,7 @@ public class FileTableController implements Initializable {
         String drive = diskComboBox.getSelectionModel().getSelectedItem();
         if (drive != null && !drive.equals(currentDrive.getName())) {
             currentDrive = MappedDriveManager.getInstance().getDriveByName(drive);
+            rootDirectory = currentDrive.getCurrentPath();
             updateTable();
         }
     }
@@ -79,7 +83,7 @@ public class FileTableController implements Initializable {
     public void clickDiskComboBox(MouseEvent mouseEvent) { refreshComboBox(); }
 
     public void clickPreviousDirectoryButton(ActionEvent actionEvent) {
-        if (numberOpenDirectories != 0 && !previousDirectoryClickService.isRunning()) {
+        if (!previousDirectoryClickService.isRunning()) {
             previousDirectoryClickService.reset();
             previousDirectoryClickService.setDrive(currentDrive);
             previousDirectoryClickService.start();
@@ -118,48 +122,21 @@ public class FileTableController implements Initializable {
     private void initializeServices() {
         tableUpdateService = new TableUpdateService();
         tableLoadProgressBar.progressProperty().bind(tableUpdateService.progressProperty());
-        tableUpdateService.setOnSucceeded(event -> Platform.runLater(() -> {
-            TableData tableData = tableUpdateService.getValue();
-            fileTableView.getItems().addAll(tableData.getFiles());
-            driveTotalSpaceLabel.setText(String.format(format, tableData.getTotalSpace()));
-            driveUnallocatedSpaceLabel.setText(String.format(format, tableData.getUnallocatedSpace()));
-            if (numberOpenDirectories != 0) { previousDirectoryButton.setDisable(false);}
-        }));
+        // без runLater ?
+        tableUpdateService.setOnSucceeded(event -> Platform.runLater(() -> processDataResult(tableUpdateService.getValue())));
 
         itemClickService = new ItemClickService();
-        itemClickService.setOnSucceeded(event -> {
-            ExecutionResult result = itemClickService.getValue();
-            if (result.getStatus() == Status.NEED_UPDATE_TABLE) {
-                numberOpenDirectories++;
-                currentDrive.setPaths(result.getPathId(), result.getPathHumanReadable());
-                updateTable();
-            } else if (result.getStatus() == Status.NEED_DOWNLOAD_FILE) {
-                FileEntity fileEntity = fileTableView.getSelectionModel().getSelectedItem();
-                if (fileEntity != null && currentDrive != null) {
-                    DownloadUtility.downloadFile(Arrays.asList(fileEntity), currentDrive);
-                }
-            } else if (result.getStatus() == Status.ERROR) {
-                AlertUtility.showErrorAlert(result.getError().getMessage());
-            }
-        });
+        itemClickService.setOnSucceeded(event -> processPathResult((PathResult) itemClickService.getValue()));
 
         previousDirectoryClickService = new PreviousDirectoryClickService();
-        previousDirectoryClickService.setOnSucceeded(event -> {
-            ExecutionResult result = previousDirectoryClickService.getValue();
-            if (result.getStatus() == Status.NEED_UPDATE_TABLE) {
-                numberOpenDirectories--;
-                currentDrive.setPaths(result.getPathId(), result.getPathHumanReadable());
-                updateTable();
-            } else if (result.getStatus() == Status.ERROR) {
-                AlertUtility.showErrorAlert(result.getError().getMessage());
-            }
-        });
+        previousDirectoryClickService.setOnSucceeded(event -> processPathResult(previousDirectoryClickService.getValue()));
     }
 
     private void initializeComboBox() {
         diskComboBox.getItems().addAll(MappedDriveManager.getInstance().getDrives());
         diskComboBox.getSelectionModel().select(0);
         currentDrive = MappedDriveManager.getInstance().getDriveByName(diskComboBox.getSelectionModel().getSelectedItem());
+        rootDirectory = currentDrive.getCurrentPath();
     }
 
     private void initializeTable(ResourceBundle resources) {
@@ -217,5 +194,31 @@ public class FileTableController implements Initializable {
         diskComboBox.getItems().clear();
         diskComboBox.getItems().addAll(MappedDriveManager.getInstance().getDrives());
         diskComboBox.getSelectionModel().select(index);
+    }
+
+    private void updateTable(String pathId, String humanReadablePath) {
+        currentDrive.setPaths(pathId, humanReadablePath);
+        updateTable();
+    }
+
+    private void processDataResult(DataResult dataResult) {
+        fileTableView.getItems().addAll(dataResult.getFiles());
+        driveTotalSpaceLabel.setText(String.format(format, dataResult.getTotalSpace()));
+        driveUnallocatedSpaceLabel.setText(String.format(format, dataResult.getUnallocatedSpace()));
+        if (dataResult.getError() != Error.NO) { AlertDialogUtility.showErrorAlert(dataResult.getError().getMessage()); }
+        if (!rootDirectory.equals(currentDrive.getCurrentPath())) { previousDirectoryButton.setDisable(false);}
+    }
+
+    private void processPathResult(PathResult pathResult) {
+        switch (pathResult.getStatus()) {
+            case NEED_UPDATE_TABLE -> updateTable(pathResult.getPathId(), pathResult.getPathHumanReadable());
+            case NEED_DOWNLOAD_FILE -> {
+                FileEntity fileEntity = fileTableView.getSelectionModel().getSelectedItem();
+                if (fileEntity != null && currentDrive != null) {
+                    DownloadUtility.downloadFile(Arrays.asList(fileEntity), currentDrive);
+                }
+            }
+            case ERROR -> AlertDialogUtility.showErrorAlert(pathResult.getError().getMessage());
+        }
     }
 }

@@ -2,10 +2,10 @@ package com.sidorov.filemanager.controller;
 
 import com.sidorov.filemanager.cloud.CloudConnector;
 import com.sidorov.filemanager.cloud.CloudDriveType;
-import com.sidorov.filemanager.controller.utility.AlertUtility;
-import com.sidorov.filemanager.controller.utility.InformationUtility;
+import com.sidorov.filemanager.controller.dialog.AlertDialogUtility;
+import com.sidorov.filemanager.controller.dialog.InformationDialogUtility;
 import com.sidorov.filemanager.model.MappedDriveManager;
-import com.sidorov.filemanager.model.entity.Error;
+import com.sidorov.filemanager.model.result.Error;
 import com.sidorov.filemanager.utility.BundleHolder;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -67,7 +67,7 @@ public class FileManagerController implements Initializable {
             }
         }
         if (errors.length() != 0) {
-            AlertUtility.showErrorWithTextArea(errors.toString());
+            AlertDialogUtility.showErrorWithTextArea(errors.toString());
         }
         googleDriveMenu.setDisable(false);
         dropboxDriveMenu.setDisable(false);
@@ -139,11 +139,11 @@ public class FileManagerController implements Initializable {
             if (error == Error.NO) {
                 setCloudDriveMenuItems(CloudDriveType.GOOGLE, true);
                 MappedDriveManager.getInstance().addGoogleDrive();
-                InformationUtility.showInformation(String
+                InformationDialogUtility.showInformation(String
                         .format(BundleHolder.getBundle().getString("string.format.message.cloud_drive_connected"), CloudDriveType.GOOGLE.getName()));
             } else {
                 setCloudDriveMenuItems(CloudDriveType.GOOGLE, false);
-                AlertUtility.showErrorAlert(error.getMessage());
+                AlertDialogUtility.showErrorAlert(error.getMessage());
             }
 
         });

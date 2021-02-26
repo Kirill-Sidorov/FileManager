@@ -1,8 +1,7 @@
 package com.sidorov.filemanager.model.entity;
 
 import com.sidorov.filemanager.controller.task.DownloadTask;
-import com.sidorov.filemanager.model.datagetter.DriveDataGettable;
-import com.sidorov.filemanager.model.datamanager.DriveDataManageable;
+import com.sidorov.filemanager.drive.adapter.AdapterManageable;
 
 import java.util.List;
 import java.util.Objects;
@@ -42,8 +41,7 @@ public class DriveEntity {
 
     public DriveEntity clone() { return new DriveEntity(name, currentPath, humanReadablePath, driveType); }
 
-    public DriveDataGettable getDataGetter() { return driveType.getDataGetter(); }
-    public DriveDataManageable getDataManager() { return driveType.getDataManager(); }
+    public AdapterManageable getDataManager() { return driveType.getDataManager(); }
     public DownloadTask getDownloadTask(List<FileEntity> files) { return driveType.getDownloadTask(files); }
 
     public String getName() { return name; }

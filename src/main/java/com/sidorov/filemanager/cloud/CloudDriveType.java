@@ -1,8 +1,8 @@
 package com.sidorov.filemanager.cloud;
 
-import com.sidorov.filemanager.cloud.googledrive.GDriveAuthorizationUtility;
+import com.sidorov.filemanager.drive.googledrive.GDriveAuthorizationUtility;
 import com.sidorov.filemanager.model.MappedDriveManager;
-import com.sidorov.filemanager.model.entity.Error;
+import com.sidorov.filemanager.model.result.Error;
 import com.sidorov.filemanager.utility.BundleHolder;
 
 public enum  CloudDriveType {

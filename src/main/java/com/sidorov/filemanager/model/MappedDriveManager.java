@@ -1,10 +1,10 @@
 package com.sidorov.filemanager.model;
 
 import com.sidorov.filemanager.cloud.CloudDriveType;
-import com.sidorov.filemanager.cloud.googledrive.GoogleDriveHolder;
-import com.sidorov.filemanager.cloud.googledrive.GoogleDriveManager;
+import com.sidorov.filemanager.drive.googledrive.GoogleDriveHolder;
+import com.sidorov.filemanager.drive.googledrive.GoogleDriveManager;
 import com.sidorov.filemanager.model.entity.DriveEntity;
-import com.sidorov.filemanager.utility.LocalDriveManager;
+import com.sidorov.filemanager.drive.local.LocalDriveManager;
 
 import java.io.File;
 import java.util.*;

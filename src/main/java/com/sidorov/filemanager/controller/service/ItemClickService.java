@@ -1,15 +1,12 @@
 package com.sidorov.filemanager.controller.service;
 
 import com.sidorov.filemanager.model.entity.DriveEntity;
-import com.sidorov.filemanager.model.entity.ExecutionResult;
 import com.sidorov.filemanager.model.entity.FileEntity;
-import com.sidorov.filemanager.utility.FileManager;
+import com.sidorov.filemanager.model.result.Result;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 
-public class ItemClickService extends Service<ExecutionResult> {
+public class ItemClickService extends Service<Result> {
 
     private FileEntity file;
     private DriveEntity drive;
@@ -20,18 +17,15 @@ public class ItemClickService extends Service<ExecutionResult> {
     }
 
     @Override
-    protected Task<ExecutionResult> createTask() {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION, "Download", ButtonType.CANCEL);
-        return new Task<ExecutionResult>() {
+    protected Task<Result> createTask() {
+        return new Task<Result>() {
             @Override
-            protected ExecutionResult call() throws Exception {
-                ExecutionResult result;
+            protected Result call() throws Exception {
                 if (file.isDirectory()) {
-                    result = FileManager.getNextDirectory(file, drive);
+                    return drive.getDataManager().getNextDirectory(file.getId(), drive.getHumanReadablePath());
                 } else {
-                    result = FileManager.executeFile(file, drive);
+                    return drive.getDataManager().executeFile(file.getId());
                 }
-                return result;
             }
         };
     }

@@ -1,7 +1,10 @@
 package com.sidorov.filemanager.controller.utility;
 
+import com.sidorov.filemanager.controller.dialog.ConfirmationDialogUtility;
+import com.sidorov.filemanager.controller.dialog.DialogCreatorHelperUtility;
 import com.sidorov.filemanager.controller.task.DownloadTask;
 import com.sidorov.filemanager.model.entity.*;
+import com.sidorov.filemanager.model.entity.DriveEntity;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 
@@ -13,9 +16,9 @@ public final class DownloadUtility {
 
     // download and run?
     public static void downloadFile(final List<FileEntity> files, final DriveEntity drive) {
-        if (ConfirmationUtility.showDownloadConfirmation() == ButtonType.OK) {
+        if (ConfirmationDialogUtility.showDownloadConfirmation() == ButtonType.OK) {
             DownloadTask task = drive.getDownloadTask(files);
-            Dialog dialog = DialogCreatorUtility.createDownloadDialog(task, drive.getName());
+            Dialog dialog = DialogCreatorHelperUtility.createDownloadDialog(task, drive.getName());
 
             task.setOnSucceeded(event -> dialog.close());
 

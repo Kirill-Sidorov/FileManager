@@ -1,6 +1,6 @@
 package com.sidorov.filemanager.cloud;
 
-import com.sidorov.filemanager.model.entity.Error;
+import com.sidorov.filemanager.model.result.Error;
 import javafx.concurrent.Task;
 
 import java.io.File;

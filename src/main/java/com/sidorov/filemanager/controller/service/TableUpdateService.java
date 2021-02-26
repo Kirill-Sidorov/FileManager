@@ -1,17 +1,11 @@
 package com.sidorov.filemanager.controller.service;
 
-import com.sidorov.filemanager.model.datagetter.DriveDataGettable;
 import com.sidorov.filemanager.model.entity.DriveEntity;
-import com.sidorov.filemanager.model.entity.DriveSizeInfo;
-import com.sidorov.filemanager.model.entity.FileEntity;
-import com.sidorov.filemanager.model.entity.TableData;
+import com.sidorov.filemanager.model.result.DataResult;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class TableUpdateService extends Service<TableData> {
+public class TableUpdateService extends Service<DataResult> {
 
     private DriveEntity drive;
 
@@ -20,30 +14,13 @@ public class TableUpdateService extends Service<TableData> {
     }
 
     @Override
-    protected Task<TableData> createTask() {
-        return new Task<TableData>() {
+    protected Task<DataResult> createTask() {
+        return new Task<DataResult>() {
             @Override
-            protected TableData call() throws Exception {
-                List<FileEntity> files = new ArrayList<FileEntity>();
-                String dirPath = drive.getCurrentPath();
-                DriveDataGettable dataGetter = drive.getDataGetter();
-                DriveSizeInfo sizeInfo = dataGetter.getDriveSizeInfo(drive.getName());
-                files = dataGetter.getListDirectoryFiles(dirPath, ((workDone, max) -> updateProgress(workDone, max)));
+            protected DataResult call() throws Exception {
+                DataResult dataResult = drive.getDataManager().getListFiles(drive.getCurrentPath(), (this::updateProgress));
                 updateProgress(0,1);
-                /*
-
-                dataGetter.setPathToIterableDirectory(dirPath);
-
-                final long numberFiles = dataGetter.getNumberFilesInDirectory(dirPath);
-                while(dataGetter.hasNextFile()) {
-                    files.add(dataGetter.getNextFile());
-                    updateProgress(files.size() == 0 ? 1 : files.size() - 1, numberFiles);
-                }
-                updateProgress(files.size(), numberFiles);
-                dataGetter = null;
-
-                 */
-                return new TableData(files, sizeInfo);
+                return dataResult;
             }
         };
     }

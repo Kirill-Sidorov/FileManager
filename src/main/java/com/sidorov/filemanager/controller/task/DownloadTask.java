@@ -1,6 +1,6 @@
 package com.sidorov.filemanager.controller.task;
 
-import com.sidorov.filemanager.model.entity.Error;
+import com.sidorov.filemanager.model.result.Error;
 import com.sidorov.filemanager.model.entity.FileEntity;
 import com.sidorov.filemanager.utility.BundleHolder;
 import javafx.concurrent.Task;
