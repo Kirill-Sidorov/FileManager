@@ -1,13 +1,11 @@
 # FileManager
-JavaFX file manager with features connect to cloud storages.<br/>
+JavaFX file manager with features connect to cloud storages.
+
 Available languages:
-  <ul>
-    <li>russian.</li>
-  </ul>
+* russian.
+
 Available cloud storages:
-  <ul>
-    <li>Google Drive;</li>
-    <li>Dropbox.</li>
-  </ul>
-<h3>This program has problems in architecture, so its improvement is not expedient.</h3>
-<h3>A more complete version of a similar program: https://github.com/Kirill-Sidorov/CloudSync</h3>
+ * Google Drive;
+ * Dropbox.
+### This program has problems in architecture, so its improvement is not expedient.
+### A more complete version of a similar program: [CloudSync](https://github.com/Kirill-Sidorov/CloudSync)
